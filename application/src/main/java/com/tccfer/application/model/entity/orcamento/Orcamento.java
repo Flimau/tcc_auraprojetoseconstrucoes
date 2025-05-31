@@ -1,40 +1,54 @@
 package com.tccfer.application.model.entity.orcamento;
 
+import com.tccfer.application.model.entity.enuns.SubtipoOrcamento;
+import com.tccfer.application.model.entity.enuns.TipoOrcamento;
 import com.tccfer.application.model.entity.pessoa.Pessoa;
 import com.tccfer.application.model.entity.visitas.VisitaTecnica;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@Table(name = "orcamento")
 public class Orcamento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
-    private String descricao;
-    private boolean comMaterial;
-
-    @OneToOne
-    @JoinColumn(name = "pessoa_id")
+    // Referência ao cliente
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "cliente_id")
     private Pessoa cliente;
 
-    @ManyToOne(optional = true)
+    // Pode ou não ter visita técnica associada
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "visita_id")
     private VisitaTecnica visita;
 
-    @ManyToOne
-    @JoinColumn(name = "subtipo_id")
+    @Column(length = 2000)
+    private String descricao;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoOrcamento tipo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private SubtipoOrcamento subtipo;
 
-    @ManyToOne
-    @JoinColumn(name = "tipo_id")
-    private TipoOrcamento tipoOrcamento;
+    @Column(name = "com_material", nullable = false)
+    private boolean comMaterial;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "orcamento_id")
-    private List<ItemOrcamento> itens;
+    @OneToMany(mappedBy = "orcamento", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrcamentoItem> itens;
+
+    @Column(name = "data_criacao", nullable = false)
+    private LocalDateTime dataCriacao = LocalDateTime.now();
 }

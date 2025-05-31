@@ -3,14 +3,17 @@ package com.tccfer.application.model.entity.visitas;
 import com.tccfer.application.model.entity.localizacao.Endereco;
 import com.tccfer.application.model.entity.pessoa.Pessoa;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.HashMap;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
 @Entity
 public class VisitaTecnica {
 
@@ -32,10 +35,10 @@ public class VisitaTecnica {
 
     private LocalTime horarioVisita;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> fotos;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> videos;
 
     private boolean usadaEmOrcamento = false;

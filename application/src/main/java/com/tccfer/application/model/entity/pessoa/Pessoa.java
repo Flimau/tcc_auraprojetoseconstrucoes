@@ -2,7 +2,6 @@ package com.tccfer.application.model.entity.pessoa;
 
 import com.tccfer.application.model.entity.contato.Contato;
 import com.tccfer.application.model.entity.enuns.TipoPessoa;
-import com.tccfer.application.model.entity.enuns.TipoUsuario;
 import com.tccfer.application.model.entity.localizacao.Endereco;
 import com.tccfer.application.model.entity.enuns.Sexo;
 import jakarta.persistence.*;
@@ -11,7 +10,11 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
 @Entity
 public class Pessoa {
 
@@ -27,21 +30,18 @@ public class Pessoa {
 
     private Date dataNascimento;
 
-    private LocalDateTime dataRegistro;
+    @Enumerated(EnumType.STRING)
+    private TipoPessoa tipoPessoa;
 
     @Enumerated(EnumType.STRING)
     private Sexo sexo;
 
-    @Enumerated(EnumType.STRING)
-    private TipoUsuario tipoUsuario;
-
-    @Enumerated(EnumType.STRING)
-    private TipoPessoa tipoPessoa;
-
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "endereco_id")
     private Endereco endereco;
 
     @Embedded
     private Contato contato;
+
+    private LocalDateTime dataRegistro;
 }

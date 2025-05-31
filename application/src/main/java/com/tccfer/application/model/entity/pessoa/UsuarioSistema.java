@@ -2,9 +2,13 @@ package com.tccfer.application.model.entity.pessoa;
 
 import com.tccfer.application.model.entity.enuns.TipoUsuario;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
 @Entity
 public class UsuarioSistema {
 
@@ -18,7 +22,11 @@ public class UsuarioSistema {
     @Column(nullable = false)
     private String senha;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoUsuario tipoUsuario;
+
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "pessoa_id", nullable = false)
     private Pessoa pessoa;
 

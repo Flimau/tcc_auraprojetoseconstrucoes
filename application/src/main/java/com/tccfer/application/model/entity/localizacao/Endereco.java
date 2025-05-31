@@ -1,9 +1,13 @@
 package com.tccfer.application.model.entity.localizacao;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
 @Entity
 public class Endereco {
 
@@ -11,11 +15,11 @@ public class Endereco {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "estados_id")
     private Estado estado;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "municipios_id")
     private Municipio municipio;
 
@@ -26,4 +30,13 @@ public class Endereco {
     private String bairro;
 
     private String cep;
-    }
+
+    private String complemento;
+
+    @Column
+    private Double latitude;
+
+    @Column
+    private Double longitude;
+
+}

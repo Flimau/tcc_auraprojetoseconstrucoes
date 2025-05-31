@@ -5,48 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="aefcb57b-9b16-4a25-af11-0f7a1abc0189" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/orcamento/SubtipoOrcamento.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/pessoa/Pessoa.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/repository/localizacaorepository/MunicipioRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/application/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/application/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/AdministradorDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/AuxiliarObraDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/ClienteDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/ContatoDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/ContatoDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/EnderecoDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/EnderecoDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/EstadoDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/MestreObraDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/MunicipioDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/PaisDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/PessoaDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/PessoaCadastroDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/detailed/EstadoDetailedDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/view/geolocalizacao/EstadoMapaDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/detailed/MunicipioDetailedDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/view/geolocalizacao/MunicipioMapaDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/Administrador.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/AuxiliarObra.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/Cliente.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/Contato.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/contato/Contato.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/Endereco.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/localizacao/Endereco.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/Estado.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/localizacao/Estado.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/MestreObra.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/Municipios.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/localizacao/Municipio.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/Pais.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/localizacao/Pais.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/Perfil.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/Pessoa.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/repository/AdministradorRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/repository/AuxiliarObraRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/repository/ClienteRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/repository/ContatoRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/repository/EnderecoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/repository/localizacaorepository/EnderecoRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/repository/EstadoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/repository/localizacaorepository/EstadoRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/repository/MestreObraRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/repository/MunicipiosRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/repository/PaisRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/repository/localizacaorepository/PaisRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/repository/PessoaRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/repository/usuariorepository/PessoaRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/service/ClienteService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/PessoaController.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/PessoaController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/PessoaCadastroDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/PessoaCadastroDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/UsuarioCadastroDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/dto/UsuarioCadastroDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/mapper/ContatoMapperOld.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/mapper/PessoaMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/mapper/PessoaMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/mapper/PessoaMapperOld.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/pessoa/Pessoa.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/pessoa/Pessoa.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/pessoa/UsuarioSistema.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/entity/pessoa/UsuarioSistema.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/service/UsuarioService.java" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/java/com/tccfer/application/model/service/UsuarioService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/application/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/application/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/generated-sources/annotations/com/tccfer/application/mapper/ContatoMapperImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/generated-sources/annotations/com/tccfer/application/mapper/PessoaMapperImpl.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,6 +38,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 6
@@ -72,17 +50,18 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;Application.Application.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.projectsettings.compiler.annotationProcessors&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "Application.Application.executor": "Debug",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Fernanda Ulrich/Desktop/application/application",
+    "settings.editor.selected.configurable": "reference.projectsettings.compiler.annotationProcessors"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="com.tccfer.application.model.entity.orcamento" />
@@ -118,5 +97,29 @@
       <updated>1745296250987</updated>
     </task>
     <servers />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint type="java-method">
+          <url>file://$PROJECT_DIR$/application/src/main/java/com/tccfer/application/controller/PessoaController.java</url>
+          <line>22</line>
+          <properties class="com.tccfer.application.controller.PessoaController" method="cadastrarUsuario">
+            <option name="EMULATED" value="true" />
+            <option name="WATCH_EXIT" value="false" />
+          </properties>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/application/src/main/java/com/tccfer/application/mapper/PessoaMapper.java</url>
+          <line>23</line>
+          <properties class="com.tccfer.application.mapper.PessoaMapper" method="toEntity">
+            <option name="EMULATED" value="true" />
+            <option name="WATCH_EXIT" value="false" />
+          </properties>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

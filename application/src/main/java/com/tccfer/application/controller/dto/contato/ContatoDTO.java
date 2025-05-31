@@ -1,4 +1,4 @@
-package com.tccfer.application.controller.dto;
+package com.tccfer.application.controller.dto.contato;
 
 import lombok.Data;
 

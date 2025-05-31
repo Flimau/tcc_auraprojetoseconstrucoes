@@ -37,5 +37,60 @@ O sistema tem como objetivo auxiliar na **gestão de projetos e obras**, oferece
 ```bash
 git clone https://github.com/Flimau/tcc_auraprojetoseconstrucoes.git
 cd tcc_auraprojetoseconstrucoes
+```
 
+2. Configure o banco no `application.properties` (H2 para testes ou PostgreSQL):
 
+```properties
+# Para usar banco em memória H2
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+spring.jpa.hibernate.ddl-auto=update
+spring.h2.console.enabled=true
+```
+
+3. Rode a aplicação:
+
+```bash
+./mvnw spring-boot:run
+```
+
+4. Acesse via navegador:
+
+```
+http://localhost:8080
+```
+
+---
+
+## 🗃️ Estrutura de pacotes
+
+```
+src
+└── main
+    └── java
+        └── com.tccfer.application
+            ├── controller
+            ├── model.entity
+            │   ├── pessoa
+            │   ├── orcamento
+            │   ├── visitas
+            ├── repository
+            ├── service
+            └── Application.java
+```
+
+---
+
+## 👩‍💻 Desenvolvedora
+
+Feito com 💛 por **Fernanda Lima Ulrich**  
+[LinkedIn](https://www.linkedin.com/in/fernanda-ulrich/) | [GitHub](https://github.com/Flimau)
+
+---
+
+## 📚 Licença
+
+Este projeto é parte de um TCC acadêmico e seu uso é livre para fins educacionais.
