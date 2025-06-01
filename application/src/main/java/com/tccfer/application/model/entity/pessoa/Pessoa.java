@@ -1,5 +1,6 @@
 package com.tccfer.application.model.entity.pessoa;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.tccfer.application.model.entity.contato.Contato;
 import com.tccfer.application.model.entity.enuns.TipoPessoa;
 import com.tccfer.application.model.entity.localizacao.Endereco;
@@ -16,6 +17,7 @@ import java.util.Date;
 @AllArgsConstructor
 @EqualsAndHashCode
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Pessoa {
 
     @Id

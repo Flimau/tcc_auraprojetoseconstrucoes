@@ -23,5 +23,8 @@ public enum SubtipoOrcamento {
     PISO,
     PINTURA,
     RODAPE,
-    REVESTIMENTO
+    REVESTIMENTO,
+
+    // Construção
+    CONSTRUCAO
 }

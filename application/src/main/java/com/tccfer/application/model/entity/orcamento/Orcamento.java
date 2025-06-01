@@ -1,5 +1,6 @@
 package com.tccfer.application.model.entity.orcamento;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.tccfer.application.model.entity.enuns.SubtipoOrcamento;
 import com.tccfer.application.model.entity.enuns.TipoOrcamento;
 import com.tccfer.application.model.entity.pessoa.Pessoa;
@@ -16,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "orcamento")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Orcamento {
 
     @Id

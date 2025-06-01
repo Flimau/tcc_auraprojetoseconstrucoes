@@ -74,14 +74,19 @@
         <strong>CPF/CNPJ:</strong>
         <span th:text="${clienteDocumento}">000.000.000-00</span><br/>
         <strong>Endereço:</strong>
-        <span
-                th:text="${clienteEndereco.logradouro} + ', ' +
-                   clienteEndereco.numero + ' - ' +
-                   clienteEndereco.bairro + ', ' +
-                   clienteEndereco.cidade + '/' +
-                   clienteEndereco.siglaEstado + ', CEP ' +
-                   clienteEndereco.cep">
-          Rua Exemplo, 100 - Centro, Porto Alegre/RS, CEP 90000-000
+        <!-- CONCORDAÇÃO CORRETA: tudo dentro de um único ${...} -->
+        <span th:text="${clienteEndereco.logradouro
+                         + ', '
+                         + clienteEndereco.numero
+                         + ' - '
+                         + clienteEndereco.bairro
+                         + ', '
+                         + clienteEndereco.cidade
+                         + '/'
+                         + clienteEndereco.siglaEstado
+                         + ', CEP '
+                         + clienteEndereco.cep}">
+          Rua Exemplo, 100 – Centro, Porto Alegre/RS, CEP 90000-000
         </span>
     </p>
 </div>
@@ -97,9 +102,10 @@
         <strong>Descrição:</strong>
         <span th:text="${orcamentoDescricao}">Reforma de Cozinha…</span><br/>
         <strong>Tipo/Subtipo:</strong>
-        <span th:text="${tipo}">REFORMA</span> /
-        <span th:text="${subtipo}">COZINHA</span><br/>
+        <!-- CONCATENAÇÃO DENTRO DE UM ÚNICO ${...} -->
+        <span th:text="${tipo + ' - ' + subtipo}">REFORMA – COZINHA</span><br/>
         <strong>Com Material:</strong>
+        <!-- OPERADOR TERNÁRIO DENTRO DE ${...} -->
         <span th:text="${comMaterial} ? 'SIM' : 'NÃO'">SIM</span>
     </p>
 
@@ -119,17 +125,15 @@
             <tr th:each="item : ${itens}">
                 <td th:text="${item.descricao}">Item Exemplo</td>
                 <td th:text="${item.quantidade}">10</td>
-                <!-- Formata decimal com 2 casas, usando vírgula como separador decimal -->
-                <td th:text="${#numbers.formatDecimal(item.valorUnitario, 2, 'COMMA', '.', 2)}">120,00</td>
-                <td th:text="${#numbers.formatDecimal(item.valorUnitario.multiply(T(item.quantidade)), 2, 'COMMA', '.', 2)}">
-                    1200,00
-                </td>
+                <!-- Formato decimal: 2 casas -->
+                <td th:text="${#numbers.formatDecimal(item.valorUnitario, 2, 2)}">120.00</td>
+                <td th:text="${#numbers.formatDecimal(item.subtotal, 2, 2)}">1200.00</td>
             </tr>
             </tbody>
         </table>
         <p style="text-align: right; margin-top: 8px;">
             <strong>Valor Total (R$):</strong>
-            <span th:text="${#numbers.formatDecimal(valorTotal, 2, 'COMMA', '.', 2)}">1500,00</span>
+            <span th:text="${#numbers.formatDecimal(valorTotal, 2, 2)}">1500.00</span>
         </p>
     </div>
 </div>
@@ -141,7 +145,7 @@
     <ol>
         <li>
             <strong>Objeto:</strong> Prestação de serviços de
-            <span th:text="${tipo} + ' - ' + ${subtipo}">REFORMA - COZINHA</span>
+            <span th:text="${tipo + ' - ' + subtipo}">REFORMA – COZINHA</span>
             conforme orçamento acima.
         </li>
         <li>

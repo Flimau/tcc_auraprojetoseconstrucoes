@@ -1,5 +1,6 @@
 package com.tccfer.application.controller.dto.orcamento;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,4 +16,5 @@ public class OrcamentoItemDTO {
     private String descricao;
     private Integer quantidade;
     private BigDecimal valorUnitario;
+    private BigDecimal subtotal;
 }
