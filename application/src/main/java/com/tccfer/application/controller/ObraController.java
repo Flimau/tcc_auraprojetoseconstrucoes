@@ -3,11 +3,14 @@ package com.tccfer.application.controller;
 import com.tccfer.application.controller.dto.obra.ObraDTO;
 import com.tccfer.application.model.entity.obra.Obra;
 import com.tccfer.application.model.service.ObraService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/obras")
@@ -88,5 +91,41 @@ public class ObraController {
     public ResponseEntity<Void> deletarObra(@PathVariable Long id) {
         obraService.deletarObra(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * PUT /api/obras/{id}/status/{novoStatus}
+     * Altera o status da obra para um dos valores válidos do enum ObraStatus.
+     */
+    @PutMapping("/{id}/status/{novoStatus}")
+    public ResponseEntity<ObraDTO> alterarStatus(
+            @PathVariable("id") Long obraId,
+            @PathVariable("novoStatus") String novoStatus) {
+
+        ObraDTO dtoAtualizado = obraService.alterarStatus(obraId, novoStatus);
+        return ResponseEntity.ok(dtoAtualizado);
+    }
+
+    /**
+     * GET /api/obras/kanban
+     * Retorna um mapa de listas de ObraDTO, agrupadas por status, para montar o Kanban.
+     */
+    @GetMapping("/kanban")
+    public ResponseEntity<Map<String, List<ObraDTO>>> kanban() {
+        Map<String, List<ObraDTO>> mapaKanban = obraService.obterPorKanban();
+        return ResponseEntity.ok(mapaKanban);
+    }
+
+    /**
+     * GET /api/obras/calendario?dataInicio=YYYY-MM-DD&dataFim=YYYY-MM-DD
+     * Retorna lista de obras cujo cronograma se sobrepõe ao período informado.
+     */
+    @GetMapping("/calendario")
+    public ResponseEntity<List<ObraDTO>> calendario(
+            @RequestParam("dataInicio") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+            @RequestParam("dataFim")    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim) {
+
+        List<ObraDTO> lista = obraService.obterPorPeriodo(dataInicio, dataFim);
+        return ResponseEntity.ok(lista);
     }
 }

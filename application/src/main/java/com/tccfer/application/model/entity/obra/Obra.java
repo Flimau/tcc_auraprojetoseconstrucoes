@@ -1,6 +1,7 @@
 package com.tccfer.application.model.entity.obra;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.tccfer.application.model.entity.enuns.ObraStatus;
 import com.tccfer.application.model.entity.orcamento.Orcamento;
 import com.tccfer.application.model.entity.pessoa.Pessoa;
 import jakarta.persistence.*;
@@ -46,6 +47,14 @@ public class Obra {
             fetch = FetchType.LAZY
     )
     private List<DiarioDeObra> diariosObra;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "executor_id", nullable = true)
+    private Pessoa executor;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20, nullable = false)
+    private ObraStatus status;
 
 }
 

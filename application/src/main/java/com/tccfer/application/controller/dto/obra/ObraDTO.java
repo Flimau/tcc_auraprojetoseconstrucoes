@@ -16,18 +16,19 @@ import java.time.LocalDate;
 public class ObraDTO {
     private Long id;
 
-    /**
-     * ID e nome do cliente (Pessoa) associado à obra.
-     * Se a UI precisar do nome do cliente, faz GET /api/pessoas/{clienteId} separadamente.
-     */
+    /** ID e nome do cliente (Pessoa) associado à obra. */
     private Long clienteId;
     private String clienteNome;
 
-    /**
-     * ID do orçamento (Orcamento) associado à obra.
-     * Se a UI precisar da descrição, faz GET /api/orcamentos/{orcamentoId} separadamente.
-     */
+    /** ID e nome do executor responsável pela obra */
+    private Long executorId;
+    private String executorNome;
+
+    /** ID do orçamento (Orcamento) associado à obra. */
     private Long orcamentoId;
+
+    /** Status da obra (PLANEJADA, EM_ANDAMENTO, etc.) */
+    private String status;
 
     private LocalDate dataInicio;
     private LocalDate dataFim;
