@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UsuarioMinDTO {
+public class UsuarioMinDTO {//para usar em listagens - saida parcial
     Long id;
     String nome;
     String documento;

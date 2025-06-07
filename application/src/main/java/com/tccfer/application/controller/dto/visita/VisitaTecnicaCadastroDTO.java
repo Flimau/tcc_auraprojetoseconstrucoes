@@ -17,14 +17,11 @@ public class VisitaTecnicaCadastroDTO {
     @NotNull(message = "Endereço é obrigatório")
     private EnderecoDTO endereco;
 
-    @NotBlank(message = "Descrição é obrigatória")
     private String descricao;
 
     @NotBlank(message = "Data da visita é obrigatória")
     private String dataVisita;    // formato ISO yyyy-MM-dd
 
-    @NotBlank(message = "Horário da visita é obrigatório")
-    private String horarioVisita; // formato HH:mm
 
     private List<String> fotos;
     private List<String> videos;

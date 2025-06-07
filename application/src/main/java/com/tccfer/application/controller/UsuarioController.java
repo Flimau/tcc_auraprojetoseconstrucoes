@@ -3,6 +3,7 @@ package com.tccfer.application.controller;
 import com.tccfer.application.controller.dto.usuario.UsuarioAtivacaoDTO;
 import com.tccfer.application.controller.dto.usuario.UsuarioCadastroDTO;
 import com.tccfer.application.controller.dto.usuario.UsuarioMinDTO;
+import com.tccfer.application.controller.dto.usuario.UsuarioSistemaDTO;
 import com.tccfer.application.model.entity.pessoa.UsuarioSistema;
 import com.tccfer.application.model.service.UsuarioService;
 import jakarta.validation.Valid;
@@ -41,9 +42,9 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioSistema> buscaPorId(@PathVariable long id){
-        UsuarioSistema usuarioSistema = usuarioService.buscarPorId(id);
-        return ResponseEntity.ok(usuarioSistema);
+    public ResponseEntity<UsuarioSistemaDTO> buscaPorId(@PathVariable long id){
+        UsuarioSistemaDTO usuarioSistemaDTO = usuarioService.buscarPorId(id);
+        return ResponseEntity.ok(usuarioSistemaDTO);
     }
 
     @GetMapping("/listar")

@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @Getter
@@ -32,8 +31,6 @@ public class VisitaTecnica {
     private String descricao;
 
     private LocalDate dataVisita;
-
-    private LocalTime horarioVisita;
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> fotos;

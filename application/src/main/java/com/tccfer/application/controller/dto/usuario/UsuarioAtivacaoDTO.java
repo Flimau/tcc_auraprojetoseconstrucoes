@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class UsuarioAtivacaoDTO {
+public class UsuarioAtivacaoDTO { //para ativacao - entrada de infos
     @NotBlank(message = "Token de ativação é obrigatório")
     private String token;
 

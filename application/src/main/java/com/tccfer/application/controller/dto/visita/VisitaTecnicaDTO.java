@@ -17,7 +17,7 @@ public class VisitaTecnicaDTO {
 
     private String descricao;
     private String dataVisita;    // ISO yyyy-MM-dd
-    private String horarioVisita; // HH:mm
+
 
     private List<String> fotos;
     private List<String> videos;

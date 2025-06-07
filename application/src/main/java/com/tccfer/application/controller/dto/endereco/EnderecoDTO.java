@@ -7,8 +7,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class EnderecoDTO {
+public class EnderecoDTO {//saída de informações
 
+    private Long id;
     private String logradouro;
     private String numero;
     private String bairro;

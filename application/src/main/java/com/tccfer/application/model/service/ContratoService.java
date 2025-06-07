@@ -1,130 +1,129 @@
+// src/main/java/com/tccfer/application/model/service/ContratoService.java
 package com.tccfer.application.model.service;
 
-import com.tccfer.application.controller.dto.orcamento.OrcamentoDTO;
+import com.tccfer.application.controller.dto.contrato.ContratoDTO;
+import com.tccfer.application.controller.dto.contrato.ContratoResumoDTO;
+import com.tccfer.application.model.entity.contrato.Contrato;
 import com.tccfer.application.model.entity.orcamento.Orcamento;
+import com.tccfer.application.model.repository.contratorepository.ContratoRepository;
 import com.tccfer.application.model.repository.orcamentorepository.OrcamentoRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
-import java.io.ByteArrayOutputStream;
-import java.math.BigDecimal;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
+/**
+ * Serviço que gerencia criação, atualização, listagem e busca de ContratoEntity.
+ */
 @Service
-@Transactional(readOnly = true)
+@RequiredArgsConstructor
+@Transactional
 public class ContratoService {
 
-    private final OrcamentoRepository orcRepo;
-    private final SpringTemplateEngine templateEngine;
-
-    public ContratoService(OrcamentoRepository orcRepo,
-                           SpringTemplateEngine templateEngine) {
-        this.orcRepo = orcRepo;
-        this.templateEngine = templateEngine;
-    }
+    private final ContratoRepository contratoRepo;
+    private final OrcamentoRepository orcamentoRepo;
 
     /**
-     * Gera um PDF de contrato para o orçamento identificado por `orcamentoId`.
-     * Retorna o array de bytes do PDF.
+     * Cria um contrato vinculado a um orçamento existente.
+     * Se já existir contrato para esse orçamento, lança exceção.
      */
-    public byte[] gerarContratoPdf(Long orcamentoId) {
-        // 1) Busca a entidade Orcamento (com cliente, visita e itens)
-        Orcamento orc = orcRepo.findById(orcamentoId)
-                .orElseThrow(() -> new RuntimeException("Orçamento não encontrado: ID=" + orcamentoId));
+    public ContratoDTO criarContrato(ContratoDTO dto) {
+        Orcamento orc = orcamentoRepo.findById(dto.getOrcamentoId())
+                .orElseThrow(() -> new RuntimeException("Orçamento não encontrado: ID=" + dto.getOrcamentoId()));
 
-        // 2) Converte Orcamento → OrcamentoDTO (útil para o Thymeleaf)
-        OrcamentoDTO dto = mapOrcamentoParaDto(orc);
-
-        // 3) Prepara o Context do Thymeleaf com todas as variáveis do template
-        Context ctx = new Context();
-        ctx.setVariable("clienteNome", dto.getClienteNome());
-
-        // Descobre CPF ou CNPJ do cliente
-        var cliente = orc.getCliente();
-        String documento = (cliente.getTipoPessoa().name().equals("FISICA"))
-                ? cliente.getCpf()
-                : cliente.getCnpj();
-        ctx.setVariable("clienteDocumento", documento);
-
-        // Mapa de endereço do cliente
-        var end = cliente.getEndereco();
-        Map<String, Object> clienteEndereco = new HashMap<>();
-        clienteEndereco.put("logradouro", end.getLogradouro());
-        clienteEndereco.put("numero", end.getNumero());
-        clienteEndereco.put("bairro", end.getBairro());
-        clienteEndereco.put("cidade", end.getMunicipio().getNome());
-        clienteEndereco.put("siglaEstado", end.getEstado().getSigla());
-        clienteEndereco.put("cep", end.getCep());
-        ctx.setVariable("clienteEndereco", clienteEndereco);
-
-        ctx.setVariable("orcamentoId", dto.getId());
-
-        String dataFormatada = orc.getDataCriacao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        ctx.setVariable("orcamentoData", dataFormatada);
-
-        ctx.setVariable("orcamentoDescricao", dto.getDescricao());
-        ctx.setVariable("tipo", dto.getTipo());
-        ctx.setVariable("subtipo", dto.getSubtipo());
-        ctx.setVariable("comMaterial", dto.isComMaterial());
-        ctx.setVariable("itens", dto.getItens());
-
-        // Calcula valorTotal (soma de item.valorUnitario * item.quantidade)
-        BigDecimal valorTotal = dto.getItens().stream()
-                .map(item -> item.getValorUnitario().multiply(new BigDecimal(item.getQuantidade())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        ctx.setVariable("valorTotal", valorTotal);
-
-        // 4) Renderiza o template Thymeleaf (contrato.html) para uma String HTML
-        String htmlContent = templateEngine.process("contrato", ctx);
-
-        // 5) Converte HTML → PDF usando OpenHTMLToPDF (PdfRendererBuilder)
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            PdfRendererBuilder builder = new PdfRendererBuilder();
-            builder.withHtmlContent(htmlContent, null);
-            builder.toStream(baos);
-            builder.run();
-            return baos.toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar PDF do contrato: " + e.getMessage(), e);
+        // Verifica se já existe um contrato para esse orçamento
+        if (contratoRepo.findByOrcamentoId(orc.getId()).isPresent()) {
+            throw new RuntimeException("Já existe contrato para esse orçamento: " + orc.getId());
         }
+
+        Contrato ent = Contrato.builder()
+                .orcamento(orc)
+                .dataInicio(dto.getDataInicio())
+                .dataFim(dto.getDataFim())
+                .status(dto.getStatus())
+                .valorTotal(dto.getValorTotal())
+                .build();
+
+        Contrato salvo = contratoRepo.save(ent);
+        return mapToDTO(salvo);
     }
 
     /**
-     * Mapeia a entidade Orcamento para o DTO usado no Thymeleaf.
+     * Atualiza um contrato existente (por ID).
      */
-    private OrcamentoDTO mapOrcamentoParaDto(Orcamento orc) {
-        OrcamentoDTO dto = new OrcamentoDTO();
-        dto.setId(orc.getId());
-        dto.setClienteId(orc.getCliente().getId());
-        dto.setClienteNome(orc.getCliente().getNome());
-        dto.setVisitaId(orc.getVisita() != null ? orc.getVisita().getId() : null);
-        dto.setDescricao(orc.getDescricao());
-        dto.setTipo(orc.getTipo().name());
-        dto.setSubtipo(orc.getSubtipo().name());
-        dto.setComMaterial(orc.isComMaterial());
+    public ContratoDTO atualizarContrato(Long id, ContratoDTO dto) {
+        Contrato ent = contratoRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Contrato não encontrado: ID=" + id));
 
-        var itensDto = orc.getItens().stream().map(item -> {
-            var i = new com.tccfer.application.controller.dto.orcamento.OrcamentoItemDTO();
-            i.setId(item.getId());
-            i.setDescricao(item.getDescricao());
-            i.setQuantidade(item.getQuantidade());
-            i.setValorUnitario(item.getValorUnitario());
+        // Atualiza campos mutáveis
+        ent.setDataInicio(dto.getDataInicio());
+        ent.setDataFim(dto.getDataFim());
+        ent.setStatus(dto.getStatus());
+        ent.setValorTotal(dto.getValorTotal());
+        Contrato atualizado = contratoRepo.save(ent);
 
-            BigDecimal qtdItem = BigDecimal.valueOf(item.getQuantidade());
-            BigDecimal subtotal = item.getValorUnitario().multiply(qtdItem);
-            i.setSubtotal(subtotal);
+        return mapToDTO(atualizado);
+    }
 
-            return i;
-        }).toList();
-        dto.setItens(itensDto);
+    /**
+     * Busca um contrato por ID.
+     */
+    @Transactional(readOnly = true)
+    public ContratoDTO buscarPorId(Long id) {
+        Contrato ent = contratoRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Contrato não encontrado: ID=" + id));
+        return mapToDTO(ent);
+    }
 
-        // Formata data de criação como ISO_LOCAL_DATE_TIME
-        dto.setDataCriacao(orc.getDataCriacao().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+    /**
+     * Busca o contrato vinculado a um orçamento específico (se existir).
+     */
+    @Transactional(readOnly = true)
+    public ContratoDTO buscarPorOrcamento(Long orcamentoId) {
+        Contrato ent = contratoRepo.findByOrcamentoId(orcamentoId)
+                .orElseThrow(() -> new RuntimeException("Contrato não encontrado para orçamento: " + orcamentoId));
+        return mapToDTO(ent);
+    }
+
+    /**
+     * Lista todos os contratos (resumos).
+     */
+    @Transactional(readOnly = true)
+    public List<ContratoResumoDTO> listarContratosResumo() {
+        return contratoRepo.findAll().stream()
+                .map(this::mapToResumoDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Converte entidade para DTO completo.
+     */
+    private ContratoDTO mapToDTO(Contrato ent) {
+        ContratoDTO dto = new ContratoDTO();
+        dto.setId(ent.getId());
+        dto.setOrcamentoId(ent.getOrcamento().getId());
+        dto.setDataInicio(ent.getDataInicio());
+        dto.setDataFim(ent.getDataFim());
+        dto.setStatus(ent.getStatus());
+        dto.setValorTotal(ent.getValorTotal());
         return dto;
+    }
+
+    /**
+     * Converte entidade para DTO de resumo (para listagem).
+     */
+    private ContratoResumoDTO mapToResumoDTO(Contrato ent) {
+        // Aproveitamos que orcamento.getCliente() está disponível no Orcamento
+        Long clienteId = ent.getOrcamento().getCliente().getId();
+        String clienteNome = ent.getOrcamento().getCliente().getNome();
+        return new ContratoResumoDTO(
+                ent.getId(),
+                ent.getOrcamento().getId(),
+                clienteId,
+                clienteNome,
+                ent.getStatus()
+        );
     }
 }

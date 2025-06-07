@@ -1,34 +1,66 @@
+// src/main/java/com/tccfer/application/controller/ContratoController.java
 package com.tccfer.application.controller;
 
+import com.tccfer.application.controller.dto.contrato.ContratoDTO;
+import com.tccfer.application.controller.dto.contrato.ContratoResumoDTO;
 import com.tccfer.application.model.service.ContratoService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.util.List;
+
+/**
+ * Expõe endpoints para CRUD de contrato:
+ *  - GET  /api/contrato           → lista todos resumos
+ *  - GET  /api/contrato/{id}      → busca contrato completo
+ *  - GET  /api/orcamento/{id}/contrato  → busca contrato pelo orçamento
+ *  - POST /api/contrato           → cria um novo contrato
+ *  - PUT  /api/contrato/{id}      → atualiza um contrato existente
+ */
 @RestController
-@RequestMapping("/api/orcamento")
+@RequiredArgsConstructor
 public class ContratoController {
 
     private final ContratoService contratoService;
 
-    @Autowired
-    public ContratoController(ContratoService contratoService) {
-        this.contratoService = contratoService;
+    /** Lista todos contratos (resumos) */
+    @GetMapping("/api/contrato")
+    public ResponseEntity<List<ContratoResumoDTO>> listarContratosResumo() {
+        List<ContratoResumoDTO> lista = contratoService.listarContratosResumo();
+        return ResponseEntity.ok(lista);
     }
 
-    /**
-     * Gera e retorna o PDF do contrato para o orçamento {id}.
-     * GET /api/orcamento/{id}/contrato
-     */
-    @GetMapping("/{id}/contrato")
-    public ResponseEntity<byte[]> baixarContrato(@PathVariable Long id) {
-        byte[] pdfBytes = contratoService.gerarContratoPdf(id);
+    /** Busca contrato completo por ID de contrato */
+    @GetMapping("/api/contrato/{id}")
+    public ResponseEntity<ContratoDTO> buscarContratoPorId(@PathVariable Long id) {
+        ContratoDTO dto = contratoService.buscarPorId(id);
+        return ResponseEntity.ok(dto);
+    }
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=contrato_orcamento_" + id + ".pdf")
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(pdfBytes);
+    /** Busca contrato associado a um orçamento (se existir) */
+    @GetMapping("/api/orcamento/{orcamentoId}/contrato")
+    public ResponseEntity<ContratoDTO> buscarPorOrcamento(@PathVariable Long orcamentoId) {
+        ContratoDTO dto = contratoService.buscarPorOrcamento(orcamentoId);
+        return ResponseEntity.ok(dto);
+    }
+
+    /** Cria um novo contrato para um orçamento */
+    @PostMapping("/api/contrato")
+    public ResponseEntity<ContratoDTO> criarContrato(@RequestBody ContratoDTO dto) {
+        ContratoDTO criado = contratoService.criarContrato(dto);
+        return ResponseEntity
+                .created(URI.create("/api/contrato/" + criado.getId()))
+                .body(criado);
+    }
+
+    /** Atualiza um contrato existente */
+    @PutMapping("/api/contrato/{id}")
+    public ResponseEntity<ContratoDTO> atualizarContrato(
+            @PathVariable Long id,
+            @RequestBody ContratoDTO dto) {
+        ContratoDTO atualizado = contratoService.atualizarContrato(id, dto);
+        return ResponseEntity.ok(atualizado);
     }
 }

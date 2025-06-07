@@ -22,3 +22,4 @@ public class UsuarioCadastroDTO {
     @NotNull(message = "Dados da pessoa são obrigatórios")
     private PessoaCadastroDTO pessoaCadastroDTO;
 }
+//Cadastrar ususario

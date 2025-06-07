@@ -1,5 +1,6 @@
 package com.tccfer.application.model.repository.usuariorepository;
 
+import com.tccfer.application.controller.dto.usuario.UsuarioSistemaDTO;
 import com.tccfer.application.model.entity.enuns.TipoUsuario;
 import com.tccfer.application.model.entity.pessoa.UsuarioSistema;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,27 +14,27 @@ public interface UsuarioSistemaRepository extends JpaRepository<UsuarioSistema, 
     boolean existsByLogin(String login);
 
     // Busca por CPF exato
-    List<UsuarioSistema> findByPessoaCpf(String cpf);
+    List<UsuarioSistemaDTO> findByPessoaCpf(String cpf);
 
     // Busca por CNPJ exato
-    List<UsuarioSistema> findByPessoaCnpj(String cnpj);
+    List<UsuarioSistemaDTO> findByPessoaCnpj(String cnpj);
 
     // Busca por nome contendo (case-insensitive)
-    List<UsuarioSistema> findByPessoaNomeContainingIgnoreCase(String nome);
+    List<UsuarioSistemaDTO> findByPessoaNomeContainingIgnoreCase(String nome);
 
     // 1) Tipo + ID exato
-    List<UsuarioSistema> findByTipoUsuarioAndId(TipoUsuario tipoUsuario, Long id);
+    List<UsuarioSistemaDTO> findByTipoUsuarioAndId(TipoUsuario tipoUsuario, Long id);
 
     // 2) Tipo + CPF
-    List<UsuarioSistema> findByTipoUsuarioAndPessoaCpf(TipoUsuario tipoUsuario, String cpf);
+    List<UsuarioSistemaDTO> findByTipoUsuarioAndPessoaCpf(TipoUsuario tipoUsuario, String cpf);
 
     // 3) Tipo + CNPJ
-    List<UsuarioSistema> findByTipoUsuarioAndPessoaCnpj(TipoUsuario tipoUsuario, String cnpj);
+    List<UsuarioSistemaDTO> findByTipoUsuarioAndPessoaCnpj(TipoUsuario tipoUsuario, String cnpj);
 
     // 4) Tipo + nome (contendo, case-insensitive)
-    List<UsuarioSistema> findByTipoUsuarioAndPessoaNomeContainingIgnoreCase(TipoUsuario tipoUsuario, String nome);
+    List<UsuarioSistemaDTO> findByTipoUsuarioAndPessoaNomeContainingIgnoreCase(TipoUsuario tipoUsuario, String nome);
 
-    List<UsuarioSistema> findByTipoUsuario(TipoUsuario tipo);
+    List<UsuarioSistemaDTO> findByTipoUsuario(TipoUsuario tipo);
 
     Optional<UsuarioSistema> findByTokenAtivacao(String token);
 

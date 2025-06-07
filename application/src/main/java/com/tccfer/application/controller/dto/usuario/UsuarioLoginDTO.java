@@ -3,7 +3,7 @@ package com.tccfer.application.controller.dto.usuario;
 import lombok.Data;
 
 @Data
-public class UsuarioLoginDTO {
+public class UsuarioLoginDTO { //Somente autentica
     private String login;
     private String senha;
 }

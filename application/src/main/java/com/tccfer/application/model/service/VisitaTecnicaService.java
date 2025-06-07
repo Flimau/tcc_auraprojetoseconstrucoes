@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,7 +53,6 @@ public class VisitaTecnicaService {
         visita.setEndereco(enderecoEntity);
         visita.setDescricao(dto.getDescricao());
         visita.setDataVisita(LocalDate.parse(dto.getDataVisita()));
-        visita.setHorarioVisita(LocalTime.parse(dto.getHorarioVisita()));
         visita.setFotos(dto.getFotos());
         visita.setVideos(dto.getVideos());
         visita.setUsadaEmOrcamento(false);
@@ -86,7 +84,6 @@ public class VisitaTecnicaService {
         dto.setEndereco(enderecoMapper.toDTO(visita.getEndereco()));
         dto.setDescricao(visita.getDescricao());
         dto.setDataVisita(visita.getDataVisita().toString());
-        dto.setHorarioVisita(visita.getHorarioVisita().toString());
         dto.setFotos(visita.getFotos());
         dto.setVideos(visita.getVideos());
         dto.setUsadaEmOrcamento(visita.isUsadaEmOrcamento());
@@ -106,7 +103,6 @@ public class VisitaTecnicaService {
         // 3) Atualiza demais campos
         visita.setDescricao(dto.getDescricao());
         visita.setDataVisita(LocalDate.parse(dto.getDataVisita()));
-        visita.setHorarioVisita(LocalTime.parse(dto.getHorarioVisita()));
         visita.setFotos(dto.getFotos());
         visita.setVideos(dto.getVideos());
 

@@ -1,10 +1,11 @@
 package com.tccfer.application.model.service;
 
-import com.tccfer.application.controller.dto.usuario.PessoaCadastroDTO;
-import com.tccfer.application.controller.dto.usuario.UsuarioCadastroDTO;
-import com.tccfer.application.controller.dto.usuario.UsuarioMinDTO;
+import com.tccfer.application.controller.dto.contato.ContatoDTO;
+import com.tccfer.application.controller.dto.endereco.EnderecoDTO;
+import com.tccfer.application.controller.dto.usuario.*;
 import com.tccfer.application.mapper.EnderecoMapper;
 import com.tccfer.application.mapper.PessoaMapper;
+import com.tccfer.application.model.entity.contato.Contato;
 import com.tccfer.application.model.entity.enuns.TipoPessoa;
 import com.tccfer.application.model.entity.enuns.TipoUsuario;
 import com.tccfer.application.model.entity.localizacao.Endereco;
@@ -97,13 +98,15 @@ public class UsuarioService {
 //        }
     }
 
-    public UsuarioSistema buscarPorId(long id) {
-        return usuarioSistemaRepository.findById(id)
+    public UsuarioSistemaDTO buscarPorId(long id) {
+
+        UsuarioSistema usuarioSistema =  usuarioSistemaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado pelo Id."));
+        return  mapEntityToUsuSisDTO(usuarioSistema);
     }
 
     @Transactional
-    public UsuarioSistema atualizar(long id, UsuarioCadastroDTO dto) {
+    public void atualizar(long id, UsuarioCadastroDTO dto) {
         UsuarioSistema usuario = usuarioSistemaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
 
@@ -113,11 +116,31 @@ public class UsuarioService {
             throw new RuntimeException("Dados da pessoa são obrigatórios para atualização.");
         }
 
-        Endereco end = enderecoMapper.toEntity(pDto.getEndereco());
+        Endereco end;
+        EnderecoDTO enderecoDTO = pDto.getEndereco();
+
+        System.out.println("ID do endereço recebido no DTO: " + enderecoDTO.getId());
+        if (enderecoDTO.getId() != null) {
+            // Reaproveita e atualiza
+            end = enderecoRepository.findById(enderecoDTO.getId())
+                    .orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
+            enderecoMapper.atualizarEntidade(enderecoDTO, end);
+        } else {
+            // Cria novo
+            end = enderecoMapper.toEntity(enderecoDTO);
+        }
         end = enderecoRepository.save(end);
         pessoaAtual.setEndereco(end);
 
+        // ATENÇÃO: remove o mapeamento do endereço dentro do MapStruct
+        EnderecoDTO enderecoOriginal = pDto.getEndereco();
+        pDto.setEndereco(null); // ← impede que o MapStruct sobrescreva
+
         pessoaMapper.atualizarEntidade(pDto, pessoaAtual);
+
+        // restaura o DTO original (opcional, caso vá usar depois)
+        pDto.setEndereco(enderecoOriginal);
+
         pessoaMapper.preencherCamposCondicionais(pDto, pessoaAtual);
         pessoaRepository.save(pessoaAtual);
 
@@ -127,7 +150,7 @@ public class UsuarioService {
         }
         usuario.setTipoUsuario(dto.getTipoUsuario());
 
-        return usuarioSistemaRepository.save(usuario);
+        usuarioSistemaRepository.save(usuario);
     }
 
     public void desativar(Long id) {
@@ -156,7 +179,12 @@ public class UsuarioService {
     }
 
     public List<UsuarioMinDTO> listarUsuarios() {
-        return mapToMinDTOList(usuarioSistemaRepository.findAll());
+        List<UsuarioSistema> usuarios = usuarioSistemaRepository.findAll();
+
+        List<UsuarioSistemaDTO> usuarioDTOs = usuarios.stream()
+                .map(this::mapEntityToUsuSisDTO)
+                .toList();
+        return mapToMinDTOList(usuarioDTOs);
     }
 
     public List<UsuarioMinDTO> listarPorId(Long id) {
@@ -209,16 +237,16 @@ public class UsuarioService {
         usuarioSistemaRepository.save(user);
     }
 
-    private List<UsuarioMinDTO> mapToMinDTOList(List<UsuarioSistema> usuarios) {
+    private List<UsuarioMinDTO> mapToMinDTOList(List<UsuarioSistemaDTO> usuarios) {
         return usuarios.stream().map(u -> {
             UsuarioMinDTO dto = new UsuarioMinDTO();
             dto.setId(u.getId());
-            dto.setTipoUsuario(u.getTipoUsuario().name());
+            dto.setTipoUsuario(u.getTipoUsuario());
             dto.setAtivo(u.isAtivo());
             if (u.getPessoa() != null) {
                 String nome = u.getPessoa().getNome();
                 dto.setNome(nome != null ? nome : "Cadastro incompleto");
-                if (u.getPessoa().getTipoPessoa() == TipoPessoa.FISICA) {
+                if ("FISICA".equalsIgnoreCase(u.getPessoa().getTipoPessoa())) {
                     dto.setDocumento(u.getPessoa().getCpf());
                 } else {
                     dto.setDocumento(u.getPessoa().getCnpj());
@@ -226,5 +254,54 @@ public class UsuarioService {
             }
             return dto;
         }).toList();
+    }
+
+    private UsuarioSistemaDTO mapEntityToUsuSisDTO(UsuarioSistema entity){
+
+        UsuarioSistemaDTO usuSisDTO = new UsuarioSistemaDTO();
+        usuSisDTO.setId(entity.getId());
+        usuSisDTO.setLogin(entity.getLogin());
+        usuSisDTO.setTipoUsuario(entity.getTipoUsuario().name());
+
+        Pessoa pessoa = entity.getPessoa();
+        PessoaDTO pessoaDTO = new PessoaDTO();
+        pessoaDTO.setNome(pessoa.getNome());
+        pessoaDTO.setCpf(pessoa.getCpf());
+        pessoaDTO.setCnpj(pessoa.getCnpj());
+        pessoaDTO.setSexo(pessoa.getSexo().name());
+        pessoaDTO.setTipoPessoa(pessoa.getTipoPessoa().name());
+        pessoaDTO.setDataNascimento(pessoa.getDataNascimento().toString());
+
+        Endereco endereco = pessoa.getEndereco();
+        EnderecoDTO enderecoDTO = new EnderecoDTO();
+        enderecoDTO.setId(endereco.getId());
+        enderecoDTO.setLogradouro(endereco.getLogradouro());
+        enderecoDTO.setNumero(endereco.getNumero());
+        enderecoDTO.setBairro(endereco.getBairro());
+        enderecoDTO.setCep(endereco.getCep());
+        enderecoDTO.setComplemento(endereco.getComplemento());
+        enderecoDTO.setLatitude(endereco.getLatitude());
+        enderecoDTO.setLongitude(endereco.getLongitude());
+
+        if (endereco.getMunicipio() != null) {
+            enderecoDTO.setCidade(endereco.getMunicipio().getNome());
+        }
+        if (endereco.getEstado() != null) {
+            enderecoDTO.setSiglaEstado(endereco.getEstado().getSigla());
+            enderecoDTO.setNomeEstado(endereco.getEstado().getNome());
+        }
+
+        pessoaDTO.setEndereco(enderecoDTO);
+
+        Contato contato = pessoa.getContato();
+        ContatoDTO contatoDTO = new ContatoDTO();
+        contatoDTO.setEmail(contato.getEmail());
+        contatoDTO.setCelular(contato.getCelular());
+
+        pessoaDTO.setContato(contatoDTO);
+
+        usuSisDTO.setPessoa(pessoaDTO);
+
+        return usuSisDTO;
     }
 }

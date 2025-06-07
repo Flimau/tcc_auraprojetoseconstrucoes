@@ -29,3 +29,4 @@ public class PessoaCadastroDTO {
     @Valid
     private ContatoDTO contato;
 }
+//PARA POST - DADOS PESSOAIS + ENDERECO
