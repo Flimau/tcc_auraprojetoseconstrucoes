@@ -1,4 +1,4 @@
-package com.tccfer.application.controller.dto.usuario;
+package com.tccfer.application.controller.dto.auth;
 
 import lombok.Data;
 

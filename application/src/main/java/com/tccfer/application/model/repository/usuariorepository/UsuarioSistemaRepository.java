@@ -34,8 +34,9 @@ public interface UsuarioSistemaRepository extends JpaRepository<UsuarioSistema, 
     // 4) Tipo + nome (contendo, case-insensitive)
     List<UsuarioSistemaDTO> findByTipoUsuarioAndPessoaNomeContainingIgnoreCase(TipoUsuario tipoUsuario, String nome);
 
-    List<UsuarioSistemaDTO> findByTipoUsuario(TipoUsuario tipo);
+    List<UsuarioSistema> findByTipoUsuario(TipoUsuario tipo);
 
     Optional<UsuarioSistema> findByTokenAtivacao(String token);
 
+    Optional<UsuarioSistema> findByLogin(String login);
 }

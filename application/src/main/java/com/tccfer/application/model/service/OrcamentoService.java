@@ -1,5 +1,9 @@
 package com.tccfer.application.model.service;
 
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.tccfer.application.controller.dto.orcamento.OrcamentoCadastroDTO;
 import com.tccfer.application.controller.dto.orcamento.OrcamentoDTO;
 import com.tccfer.application.controller.dto.orcamento.OrcamentoItemDTO;
@@ -15,7 +19,15 @@ import com.tccfer.application.model.repository.visitarepository.VisitaTecnicaRep
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +37,9 @@ public class OrcamentoService {
     private final OrcamentoRepository orcRepo;
     private final PessoaRepository pessoaRepo;
     private final VisitaTecnicaRepository visitaRepo;
+
+    @Autowired
+    private TemplateEngine templateEngine;
 
     public OrcamentoService(OrcamentoRepository orcRepo,
                             PessoaRepository pessoaRepo,
@@ -141,17 +156,66 @@ public class OrcamentoService {
         dto.setSubtipo(orc.getSubtipo().name());
         dto.setComMaterial(orc.isComMaterial());
 
-        List<OrcamentoItemDTO> itensDto = orc.getItens().stream().map(item -> {
-            OrcamentoItemDTO i = new OrcamentoItemDTO();
-            i.setId(item.getId());
-            i.setDescricao(item.getDescricao());
-            i.setQuantidade(item.getQuantidade());
-            i.setValorUnitario(item.getValorUnitario());
-            return i;
-        }).collect(Collectors.toList());
-        dto.setItens(itensDto);
+        // Só mapeia itens se for com material
+        if (orc.isComMaterial()) {
+            List<OrcamentoItemDTO> itensDto = Optional.ofNullable(orc.getItens())
+                    .orElse(Collections.emptyList())
+                    .stream()
+                    .map(item -> {
+                        OrcamentoItemDTO i = new OrcamentoItemDTO();
+                        i.setId(item.getId());
+                        i.setDescricao(item.getDescricao());
+                        i.setQuantidade(item.getQuantidade());
+                        i.setValorUnitario(item.getValorUnitario());
+                        return i;
+                    })
+                    .collect(Collectors.toList());
+            dto.setItens(itensDto);
+        } else {
+            dto.setItens(Collections.emptyList()); // ou null, se tua lógica preferir
+        }
 
         dto.setDataCriacao(orc.getDataCriacao().toString());
         return dto;
     }
+    public byte[] gerarPdfOrcamento(Long id) {
+        OrcamentoDTO dto = buscarPorId(id); // busca o DTO com os dados
+
+        // Converte data (String ISO) para data formatada
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ISO_DATE_TIME;
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        LocalDateTime dateTime = LocalDateTime.parse(dto.getDataCriacao(), inputFormatter);
+        String dataFormatada = dateTime.format(outputFormatter);
+
+        // Calcula o total apenas se houver material
+        BigDecimal total = BigDecimal.ZERO;
+        if (dto.isComMaterial() && dto.getItens() != null) {
+            total = dto.getItens().stream()
+                    .map(item -> item.getValorUnitario().multiply(BigDecimal.valueOf(item.getQuantidade())))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+
+        // Thymeleaf context
+        Context context = new Context();
+        context.setVariable("orcamento", dto);
+        context.setVariable("dataFormatada", dataFormatada);
+        context.setVariable("total", total); // <-- agora passando o total pro template
+
+        // Processa o HTML
+        String html = templateEngine.process("orcamento", context);
+
+        // Gera PDF
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.useFastMode();
+            builder.withHtmlContent(html, null);
+            builder.toStream(baos);
+            builder.run();
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao gerar PDF do orçamento", e);
+        }
+    }
+
 }

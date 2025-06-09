@@ -60,4 +60,14 @@ public class OrcamentoController {
         service.deletarOrcamento(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<byte[]> gerarPdf(@PathVariable Long id) {
+        byte[] pdf = service.gerarPdfOrcamento(id); // você vai criar isso no serviço
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=orcamento-" + id + ".pdf")
+                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
 }

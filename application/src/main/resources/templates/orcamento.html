@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+        h1 {
+            color: #333;
+            font-size: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+        th, td {
+            border: 1px solid #bbb;
+            padding: 6px;
+            text-align: left;
+        }
+        th {
+            background-color: #eee;
+        }
+        .total {
+            text-align: right;
+            font-weight: bold;
+            padding-top: 12px;
+        }
+    </style>
+</head>
+<body>
+<h1>Orçamento #<span th:text="${orcamento.id}">ID</span></h1>
+
+<p><strong>Cliente:</strong> <span th:text="${orcamento.clienteNome}">Nome</span></p>
+<p><strong>Data:</strong> <span th:text="${dataFormatada}">Data</span></p>
+<p><strong>Tipo:</strong> <span th:text="${orcamento.tipo}">TIPO</span> > <span th:text="${orcamento.subtipo}">SUBTIPO</span></p>
+<p><strong>Descrição:</strong><br /><span th:text="${orcamento.descricao}">Descrição</span></p>
+
+<div th:if="${orcamento.comMaterial}">
+    <table>
+        <thead>
+        <tr>
+            <th>Item</th>
+            <th>Qtd</th>
+            <th>Valor Unitário</th>
+            <th>Subtotal</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${orcamento.itens}">
+            <td th:text="${item.descricao}">Nome</td>
+            <td th:text="${item.quantidade}">1</td>
+            <td th:text="${#numbers.formatDecimal(item.valorUnitario, 2, 2)}">0.00</td>
+            <td th:text="${#numbers.formatDecimal(item.quantidade * item.valorUnitario, 2, 2)}">0.00</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p class="total">
+        Total estimado: R$
+        <span th:text="${#numbers.formatDecimal(total, 2, 2)}">0.00</span>
+    </p>
+</div>
+</body>
+</html>

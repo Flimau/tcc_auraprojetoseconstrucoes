@@ -7,9 +7,13 @@ import com.tccfer.application.model.repository.localizacaorepository.EnderecoRep
 import com.tccfer.application.model.repository.usuariorepository.PessoaRepository;
 import com.tccfer.application.mapper.EnderecoMapper;
 import com.tccfer.application.model.repository.visitarepository.VisitaTecnicaRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +26,9 @@ public class VisitaTecnicaService {
     private final PessoaRepository pessoaRepo;
     private final EnderecoMapper enderecoMapper;
     private final EnderecoRepository enderecoRepo;
+
+    @Value("${upload.visitas.dir}")
+    private String uploadDir;
 
     public VisitaTecnicaService(
             VisitaTecnicaRepository visitaRepo,
@@ -118,6 +125,20 @@ public class VisitaTecnicaService {
         if (!visitaRepo.existsById(id)) {
             throw new RuntimeException("Visita não encontrada para deleção");
         }
+        VisitaTecnica visita = visitaRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Visita não encontrada"));
+        if (visita.getFotos() != null) {
+            for (String url : visita.getFotos()) {
+                try {
+                    String nomeArquivo = Paths.get(url).getFileName().toString();
+                    Path caminho = Paths.get(uploadDir).resolve(nomeArquivo);
+                    Files.deleteIfExists(caminho);
+                } catch (Exception ex) {
+                    System.err.println("Erro ao excluir imagem: " + ex.getMessage());
+                }
+            }
+        }
+
         visitaRepo.deleteById(id);
     }
 }

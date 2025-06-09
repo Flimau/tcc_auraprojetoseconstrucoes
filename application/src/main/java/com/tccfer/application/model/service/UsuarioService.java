@@ -205,7 +205,12 @@ public class UsuarioService {
 
     public List<UsuarioMinDTO> listarPorTipoUsuario(String tipoStr) {
         TipoUsuario tipo = TipoUsuario.valueOf(tipoStr.toUpperCase());
-        return mapToMinDTOList(usuarioSistemaRepository.findByTipoUsuario(tipo));
+        List<UsuarioSistema> usuarios = usuarioSistemaRepository.findByTipoUsuario(tipo);
+
+        List<UsuarioSistemaDTO> usuarioDTOs = usuarios.stream()
+                .map(this::mapEntityToUsuSisDTO)
+                .toList();
+        return mapToMinDTOList(usuarioDTOs);
     }
 
     public List<UsuarioMinDTO> listarPorTipoEId(String tipoStr, Long id) {
