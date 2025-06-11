@@ -26,6 +26,8 @@ public class SecurityConfig {
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().permitAll()
+                        //isso aqui ^ libera tudo
+                        //com token coloca .anyRequest().authenticated()
                 ).sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
@@ -41,3 +43,11 @@ public class SecurityConfig {
     }
 
 }
+//exemplo pra dizer que as rotas precisam de token
+//.authorizeHttpRequests(auth -> auth
+//        .requestMatchers("/api/auth/**").permitAll()
+//    .requestMatchers("/api/publico/**").permitAll()
+//    .requestMatchers("/api/usuario/**").authenticated()
+//    .requestMatchers("/api/orcamento/**").authenticated()
+//    .anyRequest().authenticated()
+//)

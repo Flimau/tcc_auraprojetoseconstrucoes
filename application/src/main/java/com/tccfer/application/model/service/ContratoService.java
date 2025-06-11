@@ -42,7 +42,6 @@ public class ContratoService {
                 .orcamento(orc)
                 .dataInicio(dto.getDataInicio())
                 .dataFim(dto.getDataFim())
-                .status(dto.getStatus())
                 .valorTotal(dto.getValorTotal())
                 .build();
 
@@ -60,7 +59,6 @@ public class ContratoService {
         // Atualiza campos mutáveis
         ent.setDataInicio(dto.getDataInicio());
         ent.setDataFim(dto.getDataFim());
-        ent.setStatus(dto.getStatus());
         ent.setValorTotal(dto.getValorTotal());
         Contrato atualizado = contratoRepo.save(ent);
 
@@ -106,7 +104,6 @@ public class ContratoService {
         dto.setOrcamentoId(ent.getOrcamento().getId());
         dto.setDataInicio(ent.getDataInicio());
         dto.setDataFim(ent.getDataFim());
-        dto.setStatus(ent.getStatus());
         dto.setValorTotal(ent.getValorTotal());
         return dto;
     }
@@ -122,8 +119,7 @@ public class ContratoService {
                 ent.getId(),
                 ent.getOrcamento().getId(),
                 clienteId,
-                clienteNome,
-                ent.getStatus()
+                clienteNome
         );
     }
 }

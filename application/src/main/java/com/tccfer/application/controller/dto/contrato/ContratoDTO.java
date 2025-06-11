@@ -17,7 +17,6 @@ public class ContratoDTO {
     private Long orcamentoId;     // ID do orçamento ao qual pertence
     private LocalDate dataInicio; // data de início
     private LocalDate dataFim;    // data de término
-    private String status;        // status do contrato
     private Double valorTotal;    // valor total do contrato
 }
 

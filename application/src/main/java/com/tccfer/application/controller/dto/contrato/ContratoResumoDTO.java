@@ -17,5 +17,4 @@ public class ContratoResumoDTO {
     private Long orcamentoId;  // ID do orçamento associado
     private Long clienteId;    // ID do cliente
     private String clienteNome;// Nome do cliente
-    private String status;     // Status do contrato
 }
