@@ -70,4 +70,8 @@ public class OrcamentoController {
                 .body(pdf);
     }
 
+    @GetMapping("/por-cliente/{clienteId}")
+    public List<OrcamentoDTO> listarPorCliente(@PathVariable Long clienteId) {
+        return service.listarOrcamentosPorCliente(clienteId);
+    }
 }

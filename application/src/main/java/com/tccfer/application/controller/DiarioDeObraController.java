@@ -1,7 +1,10 @@
 package com.tccfer.application.controller;
 
-import com.tccfer.application.controller.dto.obra.DiarioDeObraDTO;
+import com.tccfer.application.controller.dto.obra.DiarioDeObraCadastroDTO;
+import com.tccfer.application.controller.dto.obra.DiarioDeObraDetalhadoDTO;
+import com.tccfer.application.controller.dto.obra.DiarioDeObraListagemDTO;
 import com.tccfer.application.model.service.DiarioDeObraService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,59 +12,34 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/obras/{obraId}/diarios")
+@RequestMapping("/api/diarios")
+@RequiredArgsConstructor
 public class DiarioDeObraController {
 
     private final DiarioDeObraService diarioService;
 
-    public DiarioDeObraController(DiarioDeObraService diarioService) {
-        this.diarioService = diarioService;
-    }
-
-    /**
-     * GET /api/obras/{obraId}/diarios
-     * Retorna todos os registros de Diário para a obra especificada.
-     */
-    @GetMapping
-    public ResponseEntity<List<DiarioDeObraDTO>> listarPorObra(@PathVariable Long obraId) {
-        List<DiarioDeObraDTO> lista = diarioService.listarPorObraId(obraId);
-        return ResponseEntity.ok(lista);
-    }
-
-    /**
-     * POST /api/obras/{obraId}/diarios
-     * Cria um novo registro de Diário para a obra.
-     */
     @PostMapping
-    public ResponseEntity<DiarioDeObraDTO> criarDiario(
-            @PathVariable Long obraId,
-            @RequestBody DiarioDeObraDTO dto) {
-        DiarioDeObraDTO criado = diarioService.criarDiario(obraId, dto);
-        return new ResponseEntity<>(criado, HttpStatus.CREATED);
+    public void cadastrar(@RequestBody DiarioDeObraCadastroDTO dto) {
+        diarioService.cadastrar(dto);
     }
 
-    /**
-     * PUT /api/obras/{obraId}/diarios/{id}
-     * Atualiza um registro de Diário existente.
-     */
     @PutMapping("/{id}")
-    public ResponseEntity<DiarioDeObraDTO> atualizarDiario(
-            @PathVariable Long obraId,
-            @PathVariable Long id,
-            @RequestBody DiarioDeObraDTO dto) {
-        DiarioDeObraDTO atualizado = diarioService.atualizarDiario(obraId, id, dto);
-        return ResponseEntity.ok(atualizado);
+    public void atualizar(@PathVariable Long id, @RequestBody DiarioDeObraCadastroDTO dto) {
+        diarioService.atualizar(id, dto);
     }
 
-    /**
-     * DELETE /api/obras/{obraId}/diarios/{id}
-     * Exclui o registro de Diário especificado.
-     */
+    @GetMapping("/{id}")
+    public DiarioDeObraDetalhadoDTO buscarPorId(@PathVariable Long id) {
+        return diarioService.buscarPorId(id);
+    }
+
+    @GetMapping("/obra/{obraId}")
+    public List<DiarioDeObraDetalhadoDTO> listarPorObra(@PathVariable Long obraId) {
+        return diarioService.listarPorObra(obraId);
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarDiario(
-            @PathVariable Long obraId,
-            @PathVariable Long id) {
-        diarioService.deletarDiario(obraId, id);
-        return ResponseEntity.noContent().build();
+    public void deletar(@PathVariable Long id) {
+        diarioService.deletar(id);
     }
 }

@@ -69,6 +69,7 @@ public class OrcamentoService {
         orc.setTipo(TipoOrcamento.valueOf(dto.getTipo().toUpperCase()));
         orc.setSubtipo(SubtipoOrcamento.valueOf(dto.getSubtipo().toUpperCase()));
         orc.setComMaterial(dto.isComMaterial());
+        orc.setValorTotal(dto.getTotalOrcamento());
 
         if (dto.isComMaterial() && dto.getItens() != null) {
             List<OrcamentoItem> items = dto.getItens().stream().map(itemDto -> {
@@ -145,6 +146,13 @@ public class OrcamentoService {
         orcRepo.deleteById(id);
     }
 
+    public List<OrcamentoDTO> listarOrcamentosPorCliente(Long clienteId) {
+        List<Orcamento> orcamentos = orcRepo.findByClienteId(clienteId);
+        return orcamentos.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
     private OrcamentoDTO mapToDTO(Orcamento orc) {
         OrcamentoDTO dto = new OrcamentoDTO();
         dto.setId(orc.getId());
@@ -155,6 +163,7 @@ public class OrcamentoService {
         dto.setTipo(orc.getTipo().name());
         dto.setSubtipo(orc.getSubtipo().name());
         dto.setComMaterial(orc.isComMaterial());
+        dto.setValorTotal(orc.getValorTotal());
 
         // Só mapeia itens se for com material
         if (orc.isComMaterial()) {
@@ -188,19 +197,11 @@ public class OrcamentoService {
         LocalDateTime dateTime = LocalDateTime.parse(dto.getDataCriacao(), inputFormatter);
         String dataFormatada = dateTime.format(outputFormatter);
 
-        // Calcula o total apenas se houver material
-        BigDecimal total = BigDecimal.ZERO;
-        if (dto.isComMaterial() && dto.getItens() != null) {
-            total = dto.getItens().stream()
-                    .map(item -> item.getValorUnitario().multiply(BigDecimal.valueOf(item.getQuantidade())))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-        }
-
         // Thymeleaf context
         Context context = new Context();
         context.setVariable("orcamento", dto);
         context.setVariable("dataFormatada", dataFormatada);
-        context.setVariable("total", total); // <-- agora passando o total pro template
+        //context.setVariable("total", total); // <-- agora passando o total pro template
 
         // Processa o HTML
         String html = templateEngine.process("orcamento", context);

@@ -1,208 +1,234 @@
 package com.tccfer.application.model.service;
 
-import com.tccfer.application.controller.dto.obra.ObraDTO;
+import com.tccfer.application.controller.dto.obra.*;
+import com.tccfer.application.mapper.EnderecoMapper;
+import com.tccfer.application.model.entity.contrato.Contrato;
 import com.tccfer.application.model.entity.enuns.ObraStatus;
+import com.tccfer.application.model.entity.localizacao.Endereco;
+import com.tccfer.application.model.entity.localizacao.Municipio;
 import com.tccfer.application.model.entity.obra.Obra;
-
+import com.tccfer.application.model.entity.orcamento.Orcamento;
 import com.tccfer.application.model.entity.pessoa.Pessoa;
+import com.tccfer.application.model.repository.contratorepository.ContratoRepository;
+import com.tccfer.application.model.repository.localizacaorepository.EnderecoRepository;
+import com.tccfer.application.model.repository.localizacaorepository.MunicipioRepository;
+import com.tccfer.application.model.repository.obrarepository.AcompanhamentoRepository;
+import com.tccfer.application.model.repository.obrarepository.DiarioDeObraRepository;
 import com.tccfer.application.model.repository.obrarepository.ObraRepository;
+import com.tccfer.application.model.repository.orcamentorepository.OrcamentoRepository;
+import com.tccfer.application.model.repository.usuariorepository.PessoaRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Date;
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ObraService {
 
-    private final ObraRepository obraRepository;
+    private final ObraRepository obraRepo;
+    private final PessoaRepository pessoaRepo;
+    private final OrcamentoRepository orcamentoRepo;
+    private final EnderecoRepository enderecoRepo;
+    private final EnderecoMapper enderecoMapper;
+    private final ContratoRepository contratoRepo;
+    private final DiarioDeObraRepository diarioRepo;
+    private final MunicipioRepository municipioRepo;
+    private final AcompanhamentoRepository acompanhamentoRepository;
 
-    public ObraService(ObraRepository obraRepository) {
-        this.obraRepository = obraRepository;
+    public void cadastrar(ObraCadastroDTO dto) {
+
+        validarDisponibilidadeExecutor(dto.getExecutorId(), dto.getDataInicio(), dto.getDataFim(), null);
+
+        Obra obra = new Obra();
+        obra.setCliente(buscarPessoa(dto.getClienteId()));
+        obra.setOrcamento(buscarOrcamento(dto.getOrcamentoId()));
+        obra.setExecutor(dto.getExecutorId() != null ? buscarPessoa(dto.getExecutorId()) : null);
+        obra.setContrato(dto.getContratoId() != null ? buscarContrato(dto.getContratoId()) : null);
+        obra.setDataInicio(dto.getDataInicio());
+        obra.setDataFim(dto.getDataFim());
+        obra.setStatus(dto.getStatus());
+
+        Endereco endereco = enderecoMapper.toEntity(dto.getEndereco());
+        enderecoRepo.save(endereco);
+
+
+        obra.setEndereco(endereco);
+
+        obraRepo.save(obra);
     }
 
-    /**
-     * Lista todas as obras e converte cada Entidade para ObraDTO,
-     * já carregando cliente, orçamento e executor.
-     */
-    public List<ObraDTO> listarTodasDTO() {
-        List<Obra> todas = obraRepository.findAllWithClienteOrcamentoExecutor();
-        return todas.stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public ObraDetalhadaDTO buscarPorId(Long id) {
+        Obra obra = obraRepo.buscarPorIdComRelacionamentos(id)
+                .orElseThrow(() -> new RuntimeException("Obra não encontrada"));
+
+        ObraDetalhadaDTO dto = new ObraDetalhadaDTO();
+        dto.setId(obra.getId());
+        dto.setNomeCliente(obra.getCliente().getNome());
+        dto.setOrcamentoId(obra.getOrcamento().getId());
+        dto.setEndereco(enderecoMapper.toDTO(obra.getEndereco()));
+        dto.setNomeExecutor(obra.getExecutor() != null ? obra.getExecutor().getNome() : null);
+        dto.setContratoId(obra.getContrato() != null ? obra.getContrato().getId() : null);
+        dto.setDataInicio(obra.getDataInicio());
+        dto.setDataFim(obra.getDataFim());
+        dto.setStatus(obra.getStatus());
+
+        // Listar diarios vinculados
+        List<DiarioDeObraListagemDTO> diarios = diarioRepo.findByObraId(id).stream().map(diario -> {
+            DiarioDeObraListagemDTO diarioDTO = new DiarioDeObraListagemDTO();
+            diarioDTO.setId(diario.getId());
+            diarioDTO.setDataRegistro(diario.getDataRegistro());
+            return diarioDTO;
+        }).collect(Collectors.toList());
+
+        dto.setDiarios(diarios);
+        return dto;
     }
 
-    /**
-     * Busca a obra pelo ID e retorna um ObraDTO.
-     * Carrega cliente, orçamento e executor.
-     */
-    public ObraDTO buscarPorIdDTO(Long id) {
-        Obra obra = obraRepository.findByIdWithClienteOrcamentoExecutor(id)
-                .orElseThrow(() -> new RuntimeException("Obra não encontrada com id: " + id));
-        return toDTO(obra);
+    public List<ObraListagemDTO> listar() {
+        return obraRepo.findAllWithClienteOrcamentoExecutor().stream().map(obra -> {
+            ObraListagemDTO dto = new ObraListagemDTO();
+            dto.setId(obra.getId());
+            dto.setNomeCliente(obra.getCliente().getNome());
+            dto.setNomeExecutor(obra.getExecutor() != null ? obra.getExecutor().getNome() : null);
+            dto.setDataInicio(obra.getDataInicio());
+            dto.setDataFim(obra.getDataFim());
+            dto.setStatus(obra.getStatus());
+            return dto;
+        }).collect(Collectors.toList());
     }
 
-    /**
-     * Cria nova obra no banco e retorna o DTO correspondente.
-     * Sempre define status = PLANEJADA antes de salvar.
-     */
-    public ObraDTO criarObraDTO(Obra obra) {
-        obra.setStatus(ObraStatus.PLANEJADA);
-        Obra obraSalva = obraRepository.save(obra);
+    public void atualizar(Long id, ObraCadastroDTO dto) {
 
-        // Recarrega com JOIN FETCH de cliente, orçamento e executor (se houver)
-        Obra obraComTodos = obraRepository.findByIdWithClienteOrcamentoExecutor(obraSalva.getId())
-                .orElseThrow(() -> new RuntimeException("Erro ao buscar obra criada"));
-        return toDTO(obraComTodos);
+        Obra obra = obraRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Obra não encontrada"));
+
+        Long executorAtualId = obra.getExecutor() != null ? obra.getExecutor().getId() : null;
+        Long executorNovoId = dto.getExecutorId();
+
+        if (!Objects.equals(executorAtualId, executorNovoId)) {
+            validarDisponibilidadeExecutor(executorNovoId, dto.getDataInicio(), dto.getDataFim(), id);
+        }
+
+        obra.setCliente(buscarPessoa(dto.getClienteId()));
+        obra.setOrcamento(buscarOrcamento(dto.getOrcamentoId()));
+        obra.setExecutor(dto.getExecutorId() != null ? buscarPessoa(dto.getExecutorId()) : null);
+        obra.setContrato(dto.getContratoId() != null ? buscarContrato(dto.getContratoId()) : null);
+        obra.setDataInicio(dto.getDataInicio());
+        obra.setDataFim(dto.getDataFim());
+        obra.setStatus(dto.getStatus());
+
+        // Atualizar Endereco
+        Endereco enderecoExistente = enderecoRepo.findById(obra.getEndereco().getId())
+                .orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
+
+        Municipio municipio = buscarOuCriarMunicipio(dto.getEndereco().getCidade());
+        enderecoExistente.setLogradouro(dto.getEndereco().getLogradouro());
+        enderecoExistente.setNumero(dto.getEndereco().getNumero());
+        enderecoExistente.setBairro(dto.getEndereco().getBairro());
+        enderecoExistente.setComplemento(dto.getEndereco().getComplemento());
+        enderecoExistente.setCep(dto.getEndereco().getCep());
+        enderecoExistente.setLatitude(dto.getEndereco().getLatitude());
+        enderecoExistente.setLongitude(dto.getEndereco().getLongitude());
+        enderecoExistente.setMunicipio(municipio);
+
+        enderecoRepo.save(enderecoExistente);
+        obra.setEndereco(enderecoExistente);
+        obraRepo.save(obra);
     }
 
-    /**
-     * Atualiza uma obra já existente e retorna o DTO atualizado,
-     * garantindo que cliente, orçamento e executor sejam carregados.
-     */
-    public ObraDTO atualizarObraDTO(Long id, Obra obraAtualizada) {
-        Obra obraExistente = obraRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Obra não encontrada com id: " + id));
 
-        obraExistente.setCliente(obraAtualizada.getCliente());
-        obraExistente.setOrcamento(obraAtualizada.getOrcamento());
-        obraExistente.setExecutor(obraAtualizada.getExecutor());
-        obraExistente.setDataInicio(obraAtualizada.getDataInicio());
-        obraExistente.setDataFim(obraAtualizada.getDataFim());
-        obraExistente.setContratoUrl(obraAtualizada.getContratoUrl());
+    public List<ObraListagemDTO> buscarPorCliente(String nomeCliente) {
+        List<Obra> obras = obraRepo.buscarPorClienteComRelacionamentos(nomeCliente);
+        return obras.stream().map(obra -> {
+            ObraListagemDTO dto = new ObraListagemDTO();
+            dto.setId(obra.getId());
+            dto.setNomeCliente(obra.getCliente().getNome());
+            dto.setNomeExecutor(obra.getExecutor() != null ? obra.getExecutor().getNome() : null);
+            dto.setDataInicio(obra.getDataInicio());
+            dto.setDataFim(obra.getDataFim());
+            dto.setStatus(obra.getStatus());
+            return dto;
+        }).collect(Collectors.toList());
 
-        Obra obraSalva = obraRepository.save(obraExistente);
-
-        // Recarrega com JOIN FETCH de cliente, orçamento e executor
-        Obra obraComTodos = obraRepository.findByIdWithClienteOrcamentoExecutor(obraSalva.getId())
-                .orElseThrow(() -> new RuntimeException("Erro ao buscar obra atualizada"));
-        return toDTO(obraComTodos);
     }
 
-    /**
-     * Deleta uma obra pelo ID.
-     */
-    public void deletarObra(Long id) {
-        Obra obraExistente = obraRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Obra não encontrada com id: " + id));
-        obraRepository.delete(obraExistente);
-    }
-
-    /**
-     * Atribui um executor a uma obra existente, validando disponibilidade de datas.
-     * Se já houver conflito de cronograma para o executor, lança RuntimeException.
-     */
     @Transactional
-    public ObraDTO atribuirExecutor(Long obraId, Long executorId) {
-        Obra obra = obraRepository.findById(obraId)
-                .orElseThrow(() -> new RuntimeException("Obra não encontrada com id: " + obraId));
+    public void deletar(Long id) {
+        Obra obra = obraRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Obra não encontrada"));
 
-        Pessoa executor = new Pessoa();
-        executor.setId(executorId);
+        acompanhamentoRepository.deleteByObra(obra);
+        obraRepo.delete(obra);
+    }
 
-        LocalDate novoInicio = obra.getDataInicio();
-        LocalDate novoFim    = obra.getDataFim();
-        Long qtdConflitos = obraRepository.countConflitos(executorId, novoInicio, novoFim);
-        if (qtdConflitos != null && qtdConflitos > 0) {
-            throw new RuntimeException("Executor não está disponível neste período");
+    // Métodos auxiliares para carregar as entidades relacionadas:
+    private Pessoa buscarPessoa(Long id) {
+        return pessoaRepo.findById(id).orElseThrow(() -> new RuntimeException("Pessoa não encontrada"));
+    }
+
+    private Orcamento buscarOrcamento(Long id) {
+        return orcamentoRepo.findById(id).orElseThrow(() -> new RuntimeException("Orçamento não encontrado"));
+    }
+
+    private Endereco buscarEndereco(Long id) {
+        return enderecoRepo.findById(id).orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
+    }
+
+    private Contrato buscarContrato(Long id) {
+        return contratoRepo.findById(id).orElseThrow(() -> new RuntimeException("Contrato não encontrado"));
+    }
+
+    private void validarDisponibilidadeExecutor(Long executorId, LocalDate dataInicio, LocalDate dataFim, Long obraSendoEditada) {
+        if (executorId == null || dataInicio == null || dataFim == null) {
+            return;
         }
 
-        obra.setExecutor(executor);
-        Obra obraSalva = obraRepository.save(obra);
+        List<Obra> obrasEmConflito = obraRepo.findObrasComConflitoDeData(executorId, dataInicio, dataFim, obraSendoEditada);
 
-        // Recarrega com JOIN FETCH de cliente, orçamento e executor
-        Obra obraComTodos = obraRepository.findByIdWithClienteOrcamentoExecutor(obraSalva.getId())
-                .orElseThrow(() -> new RuntimeException("Erro ao buscar obra atualizada com executor"));
-        return toDTO(obraComTodos);
-    }
-
-    /**
-     * Altera apenas o status de uma obra existente.
-     * Retorna o ObraDTO atualizado com o novo status.
-     */
-    public ObraDTO alterarStatus(Long obraId, String novoStatusStr) {
-        Obra obra = obraRepository.findByIdWithClienteOrcamentoExecutor(obraId)
-                .orElseThrow(() -> new RuntimeException("Obra não encontrada com id: " + obraId));
-
-        ObraStatus novoStatus;
-        try {
-            novoStatus = ObraStatus.valueOf(novoStatusStr);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Status inválido: " + novoStatusStr);
+        if (!obrasEmConflito.isEmpty()) {
+            throw new RuntimeException("Executor já possui obra agendada neste período.");
         }
-
-        obra.setStatus(novoStatus);
-        Obra obraSalva = obraRepository.save(obra);
-
-        // Recarrega com JOIN FETCH de cliente, orçamento e executor
-        Obra obraComTodos = obraRepository.findByIdWithClienteOrcamentoExecutor(obraSalva.getId())
-                .orElseThrow(() -> new RuntimeException("Erro ao buscar obra atualizada com status"));
-        return toDTO(obraComTodos);
     }
 
-    /**
-     * Retorna um mapa que agrupa as obras por status,
-     * pronto para ser consumido como Kanban no front.
-     */
-    public Map<String, List<ObraDTO>> obterPorKanban() {
-        Map<String, List<ObraDTO>> mapa = new LinkedHashMap<>();
+    private Municipio buscarOuCriarMunicipio(String nomeCidade) {
+        // Normaliza o nome antes de buscar/criar
+        String nomeNormalizado = nomeCidade.trim().toUpperCase();
 
-        for (ObraStatus status : ObraStatus.values()) {
-            String statusStr = status.name();
-            List<Obra> obrasDoStatus = obraRepository.findByStatusWithCliente(statusStr);
-            List<ObraDTO> dtos = obrasDoStatus.stream()
-                    .map(this::toDTO)
-                    .collect(Collectors.toList());
-            mapa.put(statusStr, dtos);
-        }
-
-        return mapa;
+        return municipioRepo.findByNomeIgnoreCase(nomeNormalizado)
+                .orElseGet(() -> {
+                    Municipio novoMunicipio = new Municipio();
+                    novoMunicipio.setNome(nomeNormalizado);
+                    return municipioRepo.save(novoMunicipio);
+                });
     }
 
-    /**
-     * Retorna lista de ObraDTO cujas datas se sobrepõem ao intervalo fornecido.
-     */
-    public List<ObraDTO> obterPorPeriodo(LocalDate dataInicio, LocalDate dataFim) {
-        List<Obra> obras = obraRepository.findByPeriodoWithCliente(dataInicio, dataFim);
-        return obras.stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+
+    public void iniciarObra(Long id, IniciarObraDTO dto) {
+        var obra = obraRepo.findById(id).orElseThrow(() -> new RuntimeException("Obra não encontrada"));
+        obra.setDataInicio(dto.getDataInicio());
+        obra.setDataFim(dto.getDataFim());
+        obra.setStatus(ObraStatus.EM_ANDAMENTO);
+
+        obraRepo.save(obra);
     }
 
-    /**
-     * Converte a entidade JPA Obra em ObraDTO “achatado”.
-     */
-    private ObraDTO toDTO(Obra obra) {
-        Long clienteId = obra.getCliente() != null
-                ? obra.getCliente().getId() : null;
-        String clienteNome = obra.getCliente() != null
-                ? obra.getCliente().getNome() : null;
+    public void finalizarObra(Long id, IniciarObraDTO dto) {
+        var obra = obraRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Obra não encontrada"));
 
-        Long orcamentoId = obra.getOrcamento() != null
-                ? obra.getOrcamento().getId() : null;
+        obra.setDataInicio(dto.getDataInicio());
+        obra.setDataFim(LocalDate.now());
+        obra.setStatus(ObraStatus.CONCLUIDA);
 
-        Long executorId = obra.getExecutor() != null
-                ? obra.getExecutor().getId() : null;
-        String executorNome = obra.getExecutor() != null
-                ? obra.getExecutor().getNome() : null;
-
-        String status = obra.getStatus() != null
-                ? obra.getStatus().name() : null;
-
-        return new ObraDTO(
-                obra.getId(),
-                clienteId,
-                clienteNome,
-                executorId,
-                executorNome,
-                orcamentoId,
-                status,
-                obra.getDataInicio(),
-                obra.getDataFim(),
-                obra.getContratoUrl()
-        );
+        obraRepo.save(obra);
     }
+
 }
+

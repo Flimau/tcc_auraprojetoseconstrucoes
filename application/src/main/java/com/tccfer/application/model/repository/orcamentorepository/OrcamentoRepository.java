@@ -13,4 +13,6 @@ public interface OrcamentoRepository extends JpaRepository<Orcamento,Long> {
      * Retorna todos orçamentos cujo cliente.nome contenha (ignore case) o texto passado.
      */
     List<Orcamento> findByClienteNomeContainingIgnoreCase(String clienteNome);
+
+    List<Orcamento> findByClienteId(Long clienteId);
 }

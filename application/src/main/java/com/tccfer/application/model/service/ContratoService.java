@@ -8,9 +8,15 @@ import com.tccfer.application.model.entity.orcamento.Orcamento;
 import com.tccfer.application.model.repository.contratorepository.ContratoRepository;
 import com.tccfer.application.model.repository.orcamentorepository.OrcamentoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import java.io.ByteArrayOutputStream;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +30,9 @@ public class ContratoService {
 
     private final ContratoRepository contratoRepo;
     private final OrcamentoRepository orcamentoRepo;
+
+    @Autowired
+    private TemplateEngine templateEngine;
 
     /**
      * Cria um contrato vinculado a um orçamento existente.
@@ -42,7 +51,6 @@ public class ContratoService {
                 .orcamento(orc)
                 .dataInicio(dto.getDataInicio())
                 .dataFim(dto.getDataFim())
-                .valorTotal(dto.getValorTotal())
                 .build();
 
         Contrato salvo = contratoRepo.save(ent);
@@ -59,7 +67,6 @@ public class ContratoService {
         // Atualiza campos mutáveis
         ent.setDataInicio(dto.getDataInicio());
         ent.setDataFim(dto.getDataFim());
-        ent.setValorTotal(dto.getValorTotal());
         Contrato atualizado = contratoRepo.save(ent);
 
         return mapToDTO(atualizado);
@@ -104,7 +111,6 @@ public class ContratoService {
         dto.setOrcamentoId(ent.getOrcamento().getId());
         dto.setDataInicio(ent.getDataInicio());
         dto.setDataFim(ent.getDataFim());
-        dto.setValorTotal(ent.getValorTotal());
         return dto;
     }
 
@@ -121,5 +127,90 @@ public class ContratoService {
                 clienteId,
                 clienteNome
         );
+    }
+
+    public byte[] gerarPdfContrato(Long contratoId) {
+        // Busca contrato e orçamento
+        Contrato contrato = contratoRepo.findById(contratoId)
+                .orElseThrow(() -> new RuntimeException("Contrato não encontrado: ID=" + contratoId));
+
+        Orcamento orcamento = contrato.getOrcamento();
+        var cliente = orcamento.getCliente();
+
+        // Formatar data (dd/MM/yyyy)
+        String dataFormatadaOrc = "";
+        String dataFormatadaIniContrato = "";
+        String dataFormatadaFinContrato = "";
+        if (orcamento.getDataCriacao() != null) {
+            dataFormatadaOrc = orcamento.getDataCriacao().toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        }
+        if (contrato.getDataInicio() != null) {
+            dataFormatadaIniContrato = contrato.getDataInicio().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        }
+        if (contrato.getDataFim() != null) {
+            dataFormatadaFinContrato = contrato.getDataFim().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        }
+
+        // Extrair endereço detalhado
+        var endereco = cliente.getEndereco();
+        String logradouro = endereco != null ? endereco.getLogradouro() : "";
+        String numero = endereco != null ? endereco.getNumero() : "";
+        String bairro = endereco != null ? endereco.getBairro() : "";
+        String cep = endereco != null ? endereco.getCep() : "";
+        String municipio = (endereco != null && endereco.getMunicipio() != null) ? endereco.getMunicipio().getNome() : "";
+        String estadoSigla = (endereco != null && endereco.getMunicipio() != null
+                && endereco.getMunicipio().getEstado() != null)
+                ? endereco.getMunicipio().getEstado().getSigla() : "";
+
+        // Monta o contexto Thymeleaf com os campos que o template espera
+        Context context = new Context();
+
+        // Cliente
+        context.setVariable("clienteNome", cliente.getNome());
+        context.setVariable("clienteDocumento", cliente.getCpf() != null ? cliente.getCpf() : cliente.getCnpj());
+        context.setVariable("logradouro", logradouro);
+        context.setVariable("numero", numero);
+        context.setVariable("bairro", bairro);
+        context.setVariable("cep", cep);
+        context.setVariable("municipio", municipio);
+        context.setVariable("estadoSigla", estadoSigla);
+
+        // Orçamento
+        context.setVariable("orcamentoId", orcamento.getId());
+        context.setVariable("orcamentoData", dataFormatadaOrc);
+        context.setVariable("orcamentoDescricao", orcamento.getDescricao());
+        context.setVariable("tipo", orcamento.getTipo());
+        context.setVariable("subtipo", orcamento.getSubtipo());
+        context.setVariable("comMaterial", orcamento.isComMaterial());
+        context.setVariable("itens", orcamento.getItens());
+        context.setVariable("valorTotal", orcamento.getValorTotal());
+        context.setVariable("contratoVigIni", dataFormatadaIniContrato);
+        context.setVariable("contratoVigFin", dataFormatadaFinContrato);
+
+        // Geração do HTML via Thymeleaf
+        String html = templateEngine.process("contrato", context);
+
+        // Conversão para PDF
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.useFastMode();
+            builder.withHtmlContent(html, null);
+            builder.toStream(baos);
+            builder.run();
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao gerar contrato em PDF", e);
+        }
+    }
+
+
+
+    public void deletarContrato(Long id) {
+        if (!contratoRepo.existsById(id)) {
+            throw new RuntimeException("Contrato não encontrada para deleção");
+        }
+        Contrato contrato = contratoRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Contrato não encontrada"));
+        contratoRepo.deleteById(id);
     }
 }

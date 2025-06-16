@@ -3,27 +3,16 @@
 <head>
     <meta charset="UTF-8" />
     <style>
-        /* ===== Estilos gerais ===== */
-        @page {
-          margin: 1.5cm;
-        }
+        @page { margin: 1.5cm; }
         body {
           font-family: Arial, sans-serif;
           font-size: 12px;
           line-height: 1.4;
           color: #000;
         }
-        header {
-          text-align: center;
-          margin-bottom: 20px;
-        }
-        h1 {
-          font-size: 18px;
-          margin: 0;
-        }
-        .section {
-          margin-top: 15px;
-        }
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { font-size: 18px; margin: 0; }
+        .section { margin-top: 15px; }
         .section h2 {
           font-size: 14px;
           margin-bottom: 5px;
@@ -39,9 +28,7 @@
           padding: 4px;
           font-size: 11px;
         }
-        th {
-          background-color: #f0f0f0;
-        }
+        th { background-color: #f0f0f0; }
         .assinaturas {
           margin-top: 60px;
           width: 100%;
@@ -52,64 +39,35 @@
           width: 45%;
           text-align: center;
         }
-        .assinatura-box p {
-          margin: 0;
-          padding: 0;
-        }
+        .assinatura-box p { margin: 0; padding: 0; }
     </style>
 </head>
 <body>
-<!-- ===== Cabeçalho do Contrato ===== -->
+
 <header>
     <h1>Contrato de Prestação de Serviços</h1>
     <p>Aura Construções Ltda.<br/>CNPJ: 58.987.537/0001-77</p>
 </header>
 
-<!-- ===== Seção: Dados do Cliente ===== -->
 <div class="section">
     <h2>Dados do Cliente</h2>
     <p>
-        <strong>Nome:</strong>
-        <span th:text="${clienteNome}">NOME_DO_CLIENTE</span><br/>
-        <strong>CPF/CNPJ:</strong>
-        <span th:text="${clienteDocumento}">000.000.000-00</span><br/>
-        <strong>Endereço:</strong>
-        <!-- CONCORDAÇÃO CORRETA: tudo dentro de um único ${...} -->
-        <span th:text="${clienteEndereco.logradouro
-                         + ', '
-                         + clienteEndereco.numero
-                         + ' - '
-                         + clienteEndereco.bairro
-                         + ', '
-                         + clienteEndereco.cidade
-                         + '/'
-                         + clienteEndereco.siglaEstado
-                         + ', CEP '
-                         + clienteEndereco.cep}">
-          Rua Exemplo, 100 – Centro, Porto Alegre/RS, CEP 90000-000
-        </span>
+        <strong>Nome:</strong> <span th:text="${clienteNome}">NOME_DO_CLIENTE</span><br/>
+        <strong>CPF/CNPJ:</strong> <span th:text="${clienteDocumento}">000.000.000-00</span><br/>
+        <strong>Endereço:</strong> [[${logradouro}]], [[${numero}]] - [[${bairro}]], [[${municipio}]]/[[${estadoSigla}]], CEP [[${cep}]]
     </p>
 </div>
 
-<!-- ===== Seção: Dados do Orçamento ===== -->
 <div class="section">
     <h2>Dados do Orçamento</h2>
     <p>
-        <strong>Orçamento nº:</strong>
-        <span th:text="${orcamentoId}">1</span><br/>
-        <strong>Data de Criação:</strong>
-        <span th:text="${orcamentoData}">2025-06-01T14:00:00</span><br/>
-        <strong>Descrição:</strong>
-        <span th:text="${orcamentoDescricao}">Reforma de Cozinha…</span><br/>
-        <strong>Tipo/Subtipo:</strong>
-        <!-- CONCATENAÇÃO DENTRO DE UM ÚNICO ${...} -->
-        <span th:text="${tipo + ' - ' + subtipo}">REFORMA – COZINHA</span><br/>
-        <strong>Com Material:</strong>
-        <!-- OPERADOR TERNÁRIO DENTRO DE ${...} -->
-        <span th:text="${comMaterial} ? 'SIM' : 'NÃO'">SIM</span>
+        <strong>Orçamento nº:</strong> <span th:text="${orcamentoId}">1</span><br/>
+        <strong>Data de Criação:</strong> <span th:text="${orcamentoData}"></span><br/>
+        <strong>Descrição:</strong> <span th:text="${orcamentoDescricao}">Reforma de Cozinha</span><br/>
+        <strong>Tipo/Subtipo:</strong> <span th:text="${tipo + ' - ' + subtipo}">REFORMA – COZINHA</span><br/>
+        <strong>Com Material:</strong> <span th:text="${comMaterial} ? 'SIM' : 'NÃO'">SIM</span>
     </p>
 
-    <!-- ===== Tabela de Itens (aparece somente se comMaterial == true) ===== -->
     <div th:if="${comMaterial}">
         <h3>Itens de Material</h3>
         <table>
@@ -125,9 +83,8 @@
             <tr th:each="item : ${itens}">
                 <td th:text="${item.descricao}">Item Exemplo</td>
                 <td th:text="${item.quantidade}">10</td>
-                <!-- Formato decimal: 2 casas -->
                 <td th:text="${#numbers.formatDecimal(item.valorUnitario, 2, 2)}">120.00</td>
-                <td th:text="${#numbers.formatDecimal(item.subtotal, 2, 2)}">1200.00</td>
+                <td th:text="${#numbers.formatDecimal(item.quantidade * item.valorUnitario, 2, 2)}">1200.00</td>
             </tr>
             </tbody>
         </table>
@@ -138,43 +95,20 @@
     </div>
 </div>
 
-<!-- ===== Seção: Cláusulas Contratuais ===== -->
 <div class="section">
     <h2>Cláusulas Contratuais</h2>
     <p>As partes acordam que a prestação de serviço descrita neste contrato seguirá as cláusulas abaixo:</p>
     <ol>
-        <li>
-            <strong>Objeto:</strong> Prestação de serviços de
-            <span th:text="${tipo + ' - ' + subtipo}">REFORMA – COZINHA</span>
-            conforme orçamento acima.
-        </li>
-        <li>
-            <strong>Prazos:</strong> O início do serviço dar-se-á em até 5 dias úteis após assinatura,
-            com conclusão prevista em 30 dias corridos.
-        </li>
-        <li>
-            <strong>Pagamento:</strong> O cliente se compromete a pagar o valor total em até
-            3 parcelas mensais, conforme acordo firmado.
-        </li>
-        <li>
-            <strong>Responsabilidades:</strong> A contratada fornecerá mão de obra e, se escolhido, os materiais
-            descritos acima. O cliente providenciará acesso à obra e eventuais licenças.
-        </li>
-        <li>
-            <strong>Garantia:</strong> A contratada garante os serviços executados por 6 meses após a conclusão.
-        </li>
-        <li>
-            <strong>Rescisão:</strong> Em caso de atraso de pagamento superior a 15 dias, a contratada poderá
-            suspender os serviços até a regularização.
-        </li>
-        <li>
-            <strong>Foro:</strong> Fica eleito o foro da comarca de Porto Alegre/RS para dirimir quaisquer dúvidas
-            oriundas deste contrato.
-        </li>
+        <li><strong>Objeto:</strong> Prestação de serviços de <span th:text="${tipo + ' - ' + subtipo}">REFORMA – COZINHA</span>.</li>
+        <li><strong>Prazos:</strong> Início em até 5 dias úteis após assinatura, com conclusão em 30 dias corridos.</li>
+        <li><strong>Pagamento:</strong> Valor total em até 3 parcelas mensais, conforme acordo.</li>
+        <li><strong>Responsabilidades:</strong> A contratada fornecerá mão de obra e, se escolhido, os materiais descritos.</li>
+        <li><strong>Garantia:</strong> 6 meses após conclusão dos serviços.</li>
+        <li><strong>Rescisão:</strong> Suspensão de serviços em atraso superior a 15 dias.</li>
+        <li><strong>Foro:</strong> Porto Alegre/RS.</li>
     </ol>
 </div>
 
-<!-- ===== Seção: Espaço para Assinaturas ===== -->
 <div class="assinaturas">
     <div class="assinatura-box">
         <p>______________________________________</p>
@@ -185,5 +119,6 @@
         <p>Assinatura da Contratada</p>
     </div>
 </div>
+
 </body>
 </html>

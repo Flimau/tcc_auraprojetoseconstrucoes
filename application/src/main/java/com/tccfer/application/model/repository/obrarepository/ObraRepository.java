@@ -67,4 +67,40 @@ public interface ObraRepository extends JpaRepository<Obra,Long> {
             @Param("dataInicio") LocalDate dataInicio,
             @Param("dataFim") LocalDate dataFim);
 
+    @Query("""
+    SELECT o FROM Obra o
+    WHERE o.executor.id = :executorId
+      AND o.dataInicio <= :dataFim
+      AND o.dataFim >= :dataInicio
+      AND (:obraSendoEditada IS NULL OR o.id != :obraSendoEditada)
+""")
+    List<Obra> findObrasComConflitoDeData(
+            @Param("executorId") Long executorId,
+            @Param("dataInicio") LocalDate dataInicio,
+            @Param("dataFim") LocalDate dataFim,
+            @Param("obraSendoEditada") Long obraSendoEditada
+    );
+
+
+    @Query("SELECT o FROM Obra o " +
+            "LEFT JOIN FETCH o.cliente " +
+            "LEFT JOIN FETCH o.orcamento " +
+            "LEFT JOIN FETCH o.endereco " +
+            "LEFT JOIN FETCH o.executor " +
+            "LEFT JOIN FETCH o.contrato " +
+            "WHERE o.id = :id")
+    Optional<Obra> buscarPorIdComRelacionamentos(@Param("id") Long id);
+
+    @Query("""
+    SELECT o FROM Obra o 
+    LEFT JOIN FETCH o.cliente 
+    LEFT JOIN FETCH o.orcamento 
+    LEFT JOIN FETCH o.endereco 
+    LEFT JOIN FETCH o.executor 
+    LEFT JOIN FETCH o.contrato 
+    WHERE LOWER(o.cliente.nome) LIKE LOWER(CONCAT('%', :nomeCliente, '%'))
+""")
+    List<Obra> buscarPorClienteComRelacionamentos(@Param("nomeCliente") String nomeCliente);
+
+
 }

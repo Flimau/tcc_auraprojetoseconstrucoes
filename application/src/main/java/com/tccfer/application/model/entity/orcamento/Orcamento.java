@@ -53,4 +53,7 @@ public class Orcamento {
 
     @Column(name = "data_criacao", nullable = false)
     private LocalDateTime dataCriacao = LocalDateTime.now();
+
+    @Column(name = "valor_total", nullable = false)
+    private double valorTotal;
 }

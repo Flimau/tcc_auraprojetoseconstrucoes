@@ -37,4 +37,6 @@ public class OrcamentoCadastroDTO {
     private boolean comMaterial;
 
     private List<OrcamentoItemCadastroDTO> itens;
+
+    private double totalOrcamento;
 }

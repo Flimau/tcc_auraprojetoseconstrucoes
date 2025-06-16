@@ -33,4 +33,6 @@ public class OrcamentoDTO {
      * ISO 8601: yyyy-MM-dd'T'HH:mm:ss
      */
     private String dataCriacao;
+
+    private double valorTotal;
 }

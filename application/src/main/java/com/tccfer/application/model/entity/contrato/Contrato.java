@@ -35,13 +35,4 @@ public class Contrato {
     @Column(name = "data_fim")
     private LocalDate dataFim;
 
-    /** Status do contrato (pode ser um enum ou String) */
-    @Column(name = "status", length = 50)
-    private String status;
-
-    /** Valor total do contrato (se for diferente do orçamento) */
-    @Column(name = "valor_total")
-    private Double valorTotal;
-
-    // Caso queira campos adicionais (por ex. observações), adicione aqui.
 }

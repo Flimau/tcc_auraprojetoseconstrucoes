@@ -1,24 +1,18 @@
-// src/main/java/com/tccfer/application/controller/ContratoController.java
 package com.tccfer.application.controller;
 
 import com.tccfer.application.controller.dto.contrato.ContratoDTO;
 import com.tccfer.application.controller.dto.contrato.ContratoResumoDTO;
 import com.tccfer.application.model.service.ContratoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
 
-/**
- * Expõe endpoints para CRUD de contrato:
- *  - GET  /api/contrato           → lista todos resumos
- *  - GET  /api/contrato/{id}      → busca contrato completo
- *  - GET  /api/orcamento/{id}/contrato  → busca contrato pelo orçamento
- *  - POST /api/contrato           → cria um novo contrato
- *  - PUT  /api/contrato/{id}      → atualiza um contrato existente
- */
 @RestController
 @RequiredArgsConstructor
 public class ContratoController {
@@ -63,4 +57,26 @@ public class ContratoController {
         ContratoDTO atualizado = contratoService.atualizarContrato(id, dto);
         return ResponseEntity.ok(atualizado);
     }
+
+    /** Deleta um contrato existente */
+    @DeleteMapping("/api/contrato/{id}")
+    public ResponseEntity<Void> deletarContrato(@PathVariable Long id) {
+        contratoService.deletarContrato(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/api/contrato/{id}/pdf")
+    public ResponseEntity<byte[]> gerarPdfContrato(@PathVariable Long id) {
+        byte[] pdfBytes = contratoService.gerarPdfContrato(id);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(ContentDisposition.inline().filename("contrato.pdf").build());
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(pdfBytes);
+    }
+
 }
